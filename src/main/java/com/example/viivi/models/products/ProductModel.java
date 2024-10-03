@@ -1,9 +1,9 @@
 package com.example.viivi.models.products;
 
-
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import com.example.viivi.models.category.CategoryModel;
 
 @Entity
 @Table(name = "products")
@@ -22,8 +22,9 @@ public class ProductModel {
     @Column(nullable = false)
     private BigDecimal price;
 
-    @Column(name = "category_id")
-    private Integer categoryId;
+    @ManyToOne
+    @JoinColumn(name = "category_id", nullable = false)
+    private CategoryModel category;  // Reference to Category entity
 
     @Column(name = "stock_quantity")
     private Integer stockQuantity;
@@ -44,14 +45,13 @@ public class ProductModel {
     private Timestamp updatedAt;
 
     // Constructors
-    public ProductModel() {
-    }
+    public ProductModel() {}
 
-    public ProductModel(String name, String description, BigDecimal price, Integer categoryId, Integer stockQuantity, Boolean isActive, String tags, BigDecimal rating, Timestamp createdAt, Timestamp updatedAt) {
+    public ProductModel(String name, String description, BigDecimal price, CategoryModel category, Integer stockQuantity, Boolean isActive, String tags, BigDecimal rating, Timestamp createdAt, Timestamp updatedAt) {
         this.name = name;
         this.description = description;
         this.price = price;
-        this.categoryId = categoryId;
+        this.category = category;
         this.stockQuantity = stockQuantity;
         this.isActive = isActive;
         this.tags = tags;
@@ -93,12 +93,12 @@ public class ProductModel {
         this.price = price;
     }
 
-    public Integer getCategoryId() {
-        return categoryId;
+    public CategoryModel getCategory() {
+        return category;
     }
 
-    public void setCategoryId(Integer categoryId) {
-        this.categoryId = categoryId;
+    public void setCategory(CategoryModel category) {
+        this.category = category;
     }
 
     public Integer getStockQuantity() {
@@ -148,5 +148,9 @@ public class ProductModel {
     public void setUpdatedAt(Timestamp updatedAt) {
         this.updatedAt = updatedAt;
     }
-}
 
+    // Add a method to return the category id for easier reference
+    public Long getCategoryId() {
+        return category != null ? category.getId() : null;
+    }
+}

@@ -8,11 +8,19 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
     <link rel="stylesheet" href="/css/styles.css">
     <style>
+        body {
+            font-family: 'Arial', sans-serif;
+        }
         .category-card {
             transition: transform 0.3s;
         }
         .category-card:hover {
             transform: translateY(-5px);
+        }
+        .card-img-top {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
         }
     </style>
 </head>
@@ -42,16 +50,16 @@
                 <div class="row">
                     <div class="col-md-3 col-sm-6 mb-4">
                         <div class="card category-card">
-                            <img src="/images/category-women.jpg" class="card-img-top" alt="Women's Fashion">
+                            <img src="https://img.freepik.com/free-psd/view-sofa-interior-design-decor_23-2151772718.jpg?t=st=1727926671~exp=1727930271~hmac=28c9fc5f457dd9db168f3c21c26eae13343e9a537a2e8f2d46b9a5901812bdbc&w=1800" class="card-img-top" alt="Women's Fashion">
                             <div class="card-body">
-                                <h5 class="card-title">Women's Fashion</h5>
+                                <h5 class="card-title">Furniture</h5>
                                 <a href="#" class="btn btn-outline-primary btn-sm">Shop Now</a>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-3 col-sm-6 mb-4">
                         <div class="card category-card">
-                            <img src="/images/category-men.jpg" class="card-img-top" alt="Men's Fashion">
+                            <img src="https://img.freepik.com/free-photo/high-fashion-portrait-young-beautiful-brunette-woman-wearing-nice-trendy-white-suit-sexy-fashion-model-posing-studio-fashionable-female-isolated-blue_158538-25880.jpg?t=st=1727926806~exp=1727930406~hmac=d52296fed934351bbbd27cea18872777d3f067e060d733ae58e63175bc8e9ed8&w=2000" class="card-img-top" alt="Men's Fashion">
                             <div class="card-body">
                                 <h5 class="card-title">Men's Fashion</h5>
                                 <a href="#" class="btn btn-outline-primary btn-sm">Shop Now</a>
@@ -60,18 +68,18 @@
                     </div>
                     <div class="col-md-3 col-sm-6 mb-4">
                         <div class="card category-card">
-                            <img src="/images/category-accessories.jpg" class="card-img-top" alt="Accessories">
+                            <img src="https://img.freepik.com/free-photo/beautiful-luxury-necklace-jewelry-stand-neck_1339-7953.jpg?t=st=1727927127~exp=1727930727~hmac=4fc900de8135585e24bc6bc993ed56dbb50bd3fc8b1b291a5a16c00d3148737a&w=996" class="card-img-top" alt="Accessories">
                             <div class="card-body">
-                                <h5 class="card-title">Accessories</h5>
+                                <h5 class="card-title">Jewelries and Watches</h5>
                                 <a href="#" class="btn btn-outline-primary btn-sm">Shop Now</a>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-3 col-sm-6 mb-4">
                         <div class="card category-card">
-                            <img src="/images/category-shoes.jpg" class="card-img-top" alt="Shoes">
+                            <img src="https://img.freepik.com/free-photo/garden-tools_144627-34536.jpg?t=st=1727927253~exp=1727930853~hmac=fa595a02d0723c376c8e88f18cee56883bbf9fab21496a6f49c819cc83a9fe25&w=1060" class="card-img-top" alt="Shoes">
                             <div class="card-body">
-                                <h5 class="card-title">Shoes</h5>
+                                <h5 class="card-title">Home and Garden</h5>
                                 <a href="#" class="btn btn-outline-primary btn-sm">Shop Now</a>
                             </div>
                         </div>
@@ -100,7 +108,7 @@
             </div>
         </section>
 
-        <!-- Featured Sellers -->
+        <!-- Featured Sellers
         <section class="py-5">
             <div class="container">
                 <h2 class="text-center mb-4">Featured Sellers</h2>
@@ -114,10 +122,10 @@
                             </div>
                         </div>
                     </div>
-                    <!-- Add more featured seller cards as needed -->
-                </div>
+                    <-- Add more featured seller cards as needed -->
+                <!-- </div>
             </div>
-        </section>
+        </section> -->
 
         <!-- Newsletter Section -->
         <section class="newsletter py-5 bg-light">
@@ -137,34 +145,7 @@
         </section>
     </main>
 
-    <footer class="bg-dark text-white py-4">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4">
-                    <h5>About Viivi</h5>
-                    <p>Your fashion marketplace for buying and selling trendy items.</p>
-                </div>
-                <div class="col-md-4">
-                    <h5>Quick Links</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="#" class="text-white">Help & Contact</a></li>
-                        <li><a href="#" class="text-white">Selling</a></li>
-                        <li><a href="#" class="text-white">Security Center</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-4">
-                    <h5>Follow Us</h5>
-                    <a href="#" class="text-white me-2"><i class="bi bi-facebook"></i></a>
-                    <a href="#" class="text-white me-2"><i class="bi bi-twitter"></i></a>
-                    <a href="#" class="text-white me-2"><i class="bi bi-instagram"></i></a>
-                </div>
-            </div>
-            <hr>
-            <div class="text-center">
-                <p>&copy; 2023 Viivi. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
+    <div th:insert="~{footer :: footer}"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/js/main.js"></script>

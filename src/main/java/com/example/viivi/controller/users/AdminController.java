@@ -2,6 +2,8 @@ package com.example.viivi.controller.users;
 
 
 import com.example.viivi.models.products.ProductModel;
+import com.example.viivi.models.products.ProductPhotosModel;
+import com.example.viivi.models.products.ProductPhotosRepository;
 import com.example.viivi.models.products.ProductRepository;
 import com.example.viivi.models.users.UserRepository;
 import com.example.viivi.models.category.CategoryRepository;
@@ -11,7 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.multipart.MultipartFile;
+import com.example.viivi.config.SaveImageFile;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Locale.Category;
@@ -23,15 +26,20 @@ public class AdminController {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final ProductPhotosRepository productPhotosRepository;
+    private final SaveImageFile saveImageFile;
     // private final OrderRepository orderRepository;
     // private final UserRepository userRepository;
 
     @Autowired
-    public AdminController(ProductRepository productRepository, CategoryRepository categoryRepository) {
+    public AdminController(ProductRepository productRepository, CategoryRepository categoryRepository,
+     ProductPhotosRepository productPhotosRepository, SaveImageFile saveImageFile) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
         // this.orderRepository = orderRepository;
         // this.userRepository = userRepository;
+        this.productPhotosRepository = productPhotosRepository;
+        this.saveImageFile = saveImageFile;
     }
 
     @GetMapping("/dashboard")
@@ -78,34 +86,86 @@ public class AdminController {
     }
 
     // Show form for editing an existing product
-    @GetMapping("/products/edit/{id}")
+    // @GetMapping("/products/edit/{id}")
+    // public String showEditProductForm(@PathVariable("id") Long id, Model model) {
+    //     Optional<ProductModel> product = productRepository.findById(id);
+    //     if (product.isPresent()) {
+    //         model.addAttribute("product", product.get());
+    //         return "edit-product"; // Assuming this maps to a form for editing the product
+    //     } else {
+    //         return "redirect:/admin/products"; // Redirect if the product is not found
+    //     }
+    // }
+
+    // Handle updating an existing product
+    // @PostMapping("/products/update/{id}")
+    // public String updateProduct(@PathVariable("id") Long id, @ModelAttribute ProductModel product) {
+    //     Optional<ProductModel> existingProduct = productRepository.findById(id);
+    //     if (existingProduct.isPresent()) {
+    //         ProductModel updatedProduct = existingProduct.get();
+    //         updatedProduct.setName(product.getName());
+    //         updatedProduct.setDescription(product.getDescription());
+    //         updatedProduct.setPrice(product.getPrice());
+    //         updatedProduct.setCategoryId(product.getCategoryId());
+    //         updatedProduct.setStockQuantity(product.getStockQuantity());
+    //         updatedProduct.setIsActive(product.getIsActive());
+    //         updatedProduct.setTags(product.getTags());
+    //         updatedProduct.setRating(product.getRating());
+    //         productRepository.save(updatedProduct);
+    //     }
+    //     return "redirect:/admin/products"; // Redirect to product listing after updating
+    // }
+
+    @GetMapping("/edit-product/{id}")
     public String showEditProductForm(@PathVariable("id") Long id, Model model) {
         Optional<ProductModel> product = productRepository.findById(id);
         if (product.isPresent()) {
+            List<ProductPhotosModel> productPhotos = productPhotosRepository.findByProductId(id); // Fetch product photos
             model.addAttribute("product", product.get());
-            return "/admin/products/edit"; // Assuming this maps to a form for editing the product
+            model.addAttribute("productPhotos", productPhotos); // Pass the photos to the model
+            model.addAttribute("categories", categoryRepository.findAll()); // Add categories to the model
+            return "edit-product"; // Thymeleaf template for editing the product
         } else {
             return "redirect:/admin/products"; // Redirect if the product is not found
         }
     }
+    
 
-    // Handle updating an existing product
-    @PostMapping("/products/update/{id}")
+    @PostMapping("/edit-product/{id}")
     public String updateProduct(@PathVariable("id") Long id, @ModelAttribute ProductModel product) {
         Optional<ProductModel> existingProduct = productRepository.findById(id);
         if (existingProduct.isPresent()) {
-            ProductModel updatedProduct = existingProduct.get();
-            updatedProduct.setName(product.getName());
-            updatedProduct.setDescription(product.getDescription());
-            updatedProduct.setPrice(product.getPrice());
-            updatedProduct.setCategoryId(product.getCategoryId());
-            updatedProduct.setStockQuantity(product.getStockQuantity());
-            updatedProduct.setIsActive(product.getIsActive());
-            updatedProduct.setTags(product.getTags());
-            updatedProduct.setRating(product.getRating());
-            productRepository.save(updatedProduct);
+            product.setId(id);  // Set the ID to ensure the update happens
+            productRepository.save(product);  // Save the updated product
+            return "redirect:/admin/products";
+        } else {
+            return "redirect:/admin/products";  // Redirect if product not found
         }
-        return "redirect:/admin/products"; // Redirect to product listing after updating
+    }
+
+   // Set a photo as the primary photo
+    @GetMapping("/set-primary-photo/{photoId}")
+    public String setPrimaryPhoto(@PathVariable("photoId") Long photoId) {
+        Optional<ProductPhotosModel> photo = productPhotosRepository.findById(photoId);
+        if (photo.isPresent()) {
+            ProductPhotosModel productPhoto = photo.get();
+            Long productId = productPhoto.getProduct().getId();
+
+            // Reset the previous primary photo
+            ProductPhotosModel existingPrimaryPhoto = productPhotosRepository.findByProductIdAndIsPrimaryTrue(productId);
+            if (existingPrimaryPhoto != null) {
+                existingPrimaryPhoto.setIsPrimary(false);
+                productPhotosRepository.save(existingPrimaryPhoto);
+            }
+
+            // Set the new primary photo
+            productPhoto.setIsPrimary(true);
+            productPhotosRepository.save(productPhoto);
+
+            return "redirect:/admin/edit-product/" + productId;  // Redirect to edit page
+        } else {
+            return "redirect:/admin/products";  // Redirect if photo not found
+        }
     }
 
     // Handle deleting a product
@@ -147,4 +207,99 @@ public class AdminController {
         model.addAttribute("categories", categoryRepository.findAll());  // Fetch all categories
         return "categories";  // Refers to the Thymeleaf template to display the categories
     }
+
+    // GET: Show form to add a photo to a product
+    @GetMapping("/add-product-photo/{productId}")
+    public String showAddProductPhotoForm(@PathVariable("productId") Long productId, Model model) {
+        Optional<ProductModel> product = productRepository.findById(productId);
+        if (product.isPresent()) {
+            model.addAttribute("product", product.get());
+            model.addAttribute("productPhoto", new ProductPhotosModel());  // New empty ProductPhoto object for form binding
+            return "add-product-photo";  // Assuming you have this Thymeleaf template
+        } else {
+            return "redirect:/admin/products";  // Redirect if product not found
+        }
+    }
+
+    // POST: Add a new photo to a product
+    // @PostMapping("/add-product-photo/{productId}")
+    // public String addProductPhoto(@PathVariable("productId") Long productId,
+    //                               @ModelAttribute ProductPhotosModel productPhoto) {
+    //     Optional<ProductModel> product = productRepository.findById(productId);
+    //     if (product.isPresent()) {
+    //         ProductModel existingProduct = product.get();
+
+    //         // If the new photo is marked as primary, reset the previous primary
+    //         if (productPhoto.getIsPrimary()) {
+    //             ProductPhotosModel existingPrimaryPhoto = productPhotosRepository.findByProductIdAndIsPrimaryTrue(productId);
+    //             if (existingPrimaryPhoto != null) {
+    //                 existingPrimaryPhoto.setIsPrimary(false);  // Set the old primary to false
+    //                 productPhotosRepository.save(existingPrimaryPhoto);
+    //             }
+    //         }
+
+    //         productPhoto.setProduct(existingProduct);
+    //         productPhotosRepository.save(productPhoto);  // Save the new photo
+
+    //         return "redirect:/admin/products";  // Redirect after adding the photo
+    //     } else {
+    //         return "redirect:/admin/products";  // Redirect if product not found
+    //     }
+    // }
+
+    @PostMapping("/add-product-photo/{productId}")
+    public String addProductPhoto(@PathVariable("productId") Long productId,
+                                @RequestParam("imageFile") MultipartFile imageFile,
+                                @ModelAttribute ProductPhotosModel productPhoto) {
+        Optional<ProductModel> product = productRepository.findById(productId);
+        if (product.isPresent()) {
+            ProductModel existingProduct = product.get();
+
+            // Save the uploaded image file
+            String photoUrl = saveImageFile.saveImageFile(imageFile);  // Save the file and get its URL
+            productPhoto.setPhotoUrl(photoUrl);  // Set the photo URL in the model
+
+            // If the new photo is marked as primary, reset the previous primary
+            if (productPhoto.getIsPrimary()) {
+                ProductPhotosModel existingPrimaryPhoto = productPhotosRepository.findByProductIdAndIsPrimaryTrue(productId);
+                if (existingPrimaryPhoto != null) {
+                    existingPrimaryPhoto.setIsPrimary(false);  // Set the old primary to false
+                    productPhotosRepository.save(existingPrimaryPhoto);
+                }
+            }
+
+            productPhoto.setProduct(existingProduct);
+            productPhotosRepository.save(productPhoto);  // Save the new photo
+
+            return "redirect:/admin/products";  // Redirect after adding the photo
+        } else {
+            return "redirect:/admin/products";  // Redirect if product not found
+        }
+    }
+
+    // DELETE: Delete a photo from a product
+    @PostMapping("/delete-product-photo/{photoId}")
+    public String deleteProductPhoto(@PathVariable("photoId") Long photoId) {
+        Optional<ProductPhotosModel> productPhoto = productPhotosRepository.findById(photoId);
+        if (productPhoto.isPresent()) {
+            productPhotosRepository.delete(productPhoto.get());  // Delete the photo
+            return "redirect:/admin/products";  // Redirect after deleting the photo
+        } else {
+            return "redirect:/admin/products";  // Redirect if photo not found
+        }
+    }
+
+    @GetMapping("/product-photos/{productId}")
+    public String viewProductPhotos(@PathVariable("productId") Long productId, Model model) {
+        Optional<ProductModel> product = productRepository.findById(productId);
+        if (product.isPresent()) {
+        List<ProductPhotosModel> productPhotos = productPhotosRepository.findByProductId(productId);
+        model.addAttribute("product", product.get());
+        model.addAttribute("productPhotos", productPhotos);
+        return "admin/view-product-photos";  // Refers to the Thymeleaf template
+    } else {
+        return "redirect:/admin/products";  // Redirect if the product is not found
+        }
+    }
+
 }

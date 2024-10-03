@@ -38,4 +38,13 @@ public class CategoryModel {
     public void setName(String name) {
         this.name = name;
     }
+
+    // Additional getter and setter for category_name
+    public String getCategoryName() {
+        return name;
+    }
+
+    public void setCategoryName(String categoryName) {
+        this.name = categoryName;
+    }
 }

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <style>
+        :root {
+            --primary-color: #3a506b;
+            --secondary-color: #5bc0be;
+            --text-color: #ffffff;
+            --footer-bg: #2c3e50;
+            --footer-text: #ecf0f1;
+            --footer-link: #bdc3c7;
+        }
+        
+        .footer {
+            background-color: var(--footer-bg);
+            color: var(--footer-text);
+            font-size: 0.9rem;
+        }
+        
+        .footer h5 {
+            color: var(--secondary-color);
+            font-weight: 600;
+        }
+        
+        .footer-link {
+            color: var(--footer-link);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-link:hover {
+            color: var(--secondary-color);
+        }
+        
+        .social-icons {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .social-icon {
+            color: var(--footer-link);
+            font-size: 1.2rem;
+            transition: color 0.3s ease;
+        }
+        
+        .social-icon:hover {
+            color: var(--secondary-color);
+        }
+        
+        hr {
+            border-color: rgba(236, 240, 241, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <footer th:fragment="footer" class="footer">
+        <div class="container py-4">
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <h5 class="text-uppercase mb-3">About Viivi</h5>
+                    <p class="mb-0">Your fashion marketplace for buying and selling trendy items.</p>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <h5 class="text-uppercase mb-3">Quick Links</h5>
+                    <ul class="list-unstyled mb-0">
+                        <li><a th:href="@{/help}" class="footer-link">Help & Contact</a></li>
+                        <li><a th:href="@{/selling}" class="footer-link">Selling</a></li>
+                        <li><a th:href="@{/security}" class="footer-link">Security Center</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4 col-md-12">
+                    <h5 class="text-uppercase mb-3">Follow Us</h5>
+                    <div class="social-icons">
+                        <a href="#" class="social-icon" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="social-icon" aria-label="Twitter"><i class="bi bi-twitter"></i></a>
+                        <a href="#" class="social-icon" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="mt-4 mb-3">
+            <div class="row">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="mb-0">&copy; <span th:text="${#dates.year(#dates.createNow())}">2023</span> Viivi. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <a th:href="@{/privacy}" class="footer-link me-3">Privacy Policy</a>
+                    <a th:href="@{/terms}" class="footer-link">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

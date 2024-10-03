@@ -11,6 +11,8 @@ SELECT * FROM users;
 
 SELECT * FROM categories;
 
+SELECT * FROM products;
+
 CREATE TABLE products (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
@@ -37,3 +39,17 @@ CREATE TABLE categories (
 );
 
 
+
+CREATE TABLE product_photos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    product_id INTEGER NOT NULL,
+    photo_url TEXT NOT NULL,
+    is_primary INTEGER DEFAULT 0,  -- Boolean field, 1 = true, 0 = false
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+);
+
+
+SELECT * FROM product_photos;
+
+
+alter table categories add column category_name varchar(255);
