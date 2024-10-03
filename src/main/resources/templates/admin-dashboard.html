@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{header :: head}">
+    <title>Admin Dashboard - Viivi</title>
+</head>
+<body class="bg-light">
+    <!-- Include the header fragment -->
+    <div th:replace="~{header :: header}"></div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse">
+                <div class="position-sticky pt-3">
+                    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <span>Admin Panel</span>
+                    </h6>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/add-product">
+                                <i class="bi bi-plus-circle me-2"></i>Add Product
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/add-category">
+                                <i class="bi bi-folder-plus me-2"></i>Add Category
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/manage-users">
+                                <i class="bi bi-people me-2"></i>Manage Users
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/view-orders">
+                                <i class="bi bi-bag-check me-2"></i>View Orders
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin/sales-report">
+                                <i class="bi bi-graph-up me-2"></i>Sales Report
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Admin Dashboard</h1>
+                </div>
+
+                <div class="row row-cols-1 row-cols-md-3 g-4">
+                    <!-- Dashboard section for product management -->
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Products</h5>
+                                <p class="card-text display-4" th:text="${totalProducts}">0</p>
+                                <a href="/admin/products" class="btn btn-primary">Manage Products</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dashboard section for category management -->
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Categories</h5>
+                                <p class="card-text display-4" th:text="${totalCategories}">0</p>
+                                <a href="/admin/categories" class="btn btn-primary">Manage Categories</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dashboard section for orders management -->
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Orders</h5>
+                                <p class="card-text display-4" th:text="${totalOrders}">0</p>
+                                <a href="/admin/orders" class="btn btn-primary">Manage Orders</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dashboard section for users management -->
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Users</h5>
+                                <p class="card-text display-4" th:text="${totalUsers}">0</p>
+                                <a href="/admin/users" class="btn btn-primary">Manage Users</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dashboard section for sales statistics -->
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Sales Revenue</h5>
+                                <p class="card-text display-4" th:text="${totalRevenue}">$0.00</p>
+                                <a href="/admin/sales-report" class="btn btn-primary">View Sales Report</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Include the scripts fragment -->
+    <th:block th:replace="~{header :: scripts}"></th:block>
+</body>
+</html>
