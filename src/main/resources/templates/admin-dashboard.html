@@ -2,6 +2,55 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{header :: head}">
     <title>Admin Dashboard - Viivi</title>
+    <style>
+        /* Sidebar styles */
+        #sidebar {
+    background-color: #f8f9fa;
+    border-right: 1px solid #dee2e6;
+    min-height: 100vh; /* Ensure the sidebar stretches to full height */
+}
+
+#sidebar .nav-item {
+    margin-bottom: 1rem; /* Increase spacing between items */
+}
+
+#sidebar .nav-link {
+    color: #495057 !important;
+    padding: 0.75rem 1.5rem; /* Adjust padding for better spacing */
+    font-size: 1.1rem; /* Slightly larger font for readability */
+    display: flex;
+    align-items: center; /* Center align text and icon */
+    border-radius: 0.25rem;
+    transition: background-color 0.3s ease;
+}
+
+#sidebar .nav-link:hover, #sidebar .nav-link.active {
+    color: #007bff !important;
+    background-color: #e9ecef;
+}
+
+#sidebar .nav-link i {
+    width: 2rem; /* Increase icon width for more spacing */
+    text-align: center;
+    margin-right: 1rem;
+    font-size: 1.4rem; /* Increase icon size */
+    color: #495057 !important;
+}
+
+#sidebar .sidebar-heading {
+    padding: 0.75rem 1.5rem;
+    font-size: 1.25rem; /* Adjust heading font size */
+    font-weight: bold;
+    color: #6c757d;
+}
+
+
+        /* Adjusting main content for sidebar space */
+        main {
+            margin-left: 240px;
+            padding: 20px;
+        }
+    </style>
 </head>
 <body class="bg-light">
     <!-- Include the header fragment -->
@@ -10,35 +59,35 @@
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
-            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse">
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-white shadow-sm sidebar">
                 <div class="position-sticky pt-3">
-                    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-3 text-muted">
                         <span>Admin Panel</span>
                     </h6>
                     <ul class="nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="/admin/add-product">
-                                <i class="bi bi-plus-circle me-2"></i>Add Product
+                            <a class="nav-link text-black" href="/admin/add-product">
+                                <i class="bi bi-plus-circle me-2 text-primary"></i>Add Product
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="/admin/add-category">
-                                <i class="bi bi-folder-plus me-2"></i>Add Category
+                            <a class="nav-link text-dark" href="/admin/add-category">
+                                <i class="bi bi-folder-plus me-2 text-success"></i>Add Category
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="/admin/manage-users">
-                                <i class="bi bi-people me-2"></i>Manage Users
+                            <a class="nav-link text-dark" href="/admin/manage-users">
+                                <i class="bi bi-people me-2 text-info"></i>Manage Users
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="/admin/view-orders">
-                                <i class="bi bi-bag-check me-2"></i>View Orders
+                            <a class="nav-link text-dark" href="/admin/view-orders">
+                                <i class="bi bi-bag-check me-2 text-warning"></i>View Orders
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="/admin/sales-report">
-                                <i class="bi bi-graph-up me-2"></i>Sales Report
+                            <a class="nav-link text-dark" href="/admin/sales-report">
+                                <i class="bi bi-graph-up me-2 text-danger"></i>Sales Report
                             </a>
                         </li>
                     </ul>
@@ -49,60 +98,78 @@
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <h1 class="h2">Admin Dashboard</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group me-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary">Print</button>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
+                            <i class="bi bi-calendar3"></i>
+                            This week
+                        </button>
+                    </div>
                 </div>
 
                 <div class="row row-cols-1 row-cols-md-3 g-4">
-                    <!-- Dashboard section for product management -->
+                    <!-- Dashboard cards -->
                     <div class="col">
-                        <div class="card h-100">
+                        <div class="card h-100 border-0 shadow-sm">
                             <div class="card-body">
-                                <h5 class="card-title">Total Products</h5>
-                                <p class="card-text display-4" th:text="${totalProducts}">0</p>
-                                <a href="/admin/products" class="btn btn-primary">Manage Products</a>
+                                <h5 class="card-title text-primary">Total Products</h5>
+                                <p class="card-text display-4 fw-bold" th:text="${totalProducts}">0</p>
+                                <a href="/admin/products" class="btn btn-outline-primary">Manage Products</a>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Dashboard section for category management -->
                     <div class="col">
-                        <div class="card h-100">
+                        <div class="card h-100 border-0 shadow-sm">
                             <div class="card-body">
-                                <h5 class="card-title">Total Categories</h5>
-                                <p class="card-text display-4" th:text="${totalCategories}">0</p>
-                                <a href="/admin/categories" class="btn btn-primary">Manage Categories</a>
+                                <h5 class="card-title text-success">Total Categories</h5>
+                                <p class="card-text display-4 fw-bold" th:text="${totalCategories}">0</p>
+                                <a href="/admin/categories" class="btn btn-outline-success">Manage Categories</a>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Dashboard section for orders management -->
                     <div class="col">
-                        <div class="card h-100">
+                        <div class="card h-100 border-0 shadow-sm">
                             <div class="card-body">
-                                <h5 class="card-title">Total Orders</h5>
-                                <p class="card-text display-4" th:text="${totalOrders}">0</p>
-                                <a href="/admin/orders" class="btn btn-primary">Manage Orders</a>
+                                <h5 class="card-title text-warning">Total Orders</h5>
+                                <p class="card-text display-4 fw-bold" th:text="${totalOrders}">0</p>
+                                <a href="/admin/orders" class="btn btn-outline-warning">Manage Orders</a>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Dashboard section for users management -->
                     <div class="col">
-                        <div class="card h-100">
+                        <div class="card h-100 border-0 shadow-sm">
                             <div class="card-body">
-                                <h5 class="card-title">Total Users</h5>
-                                <p class="card-text display-4" th:text="${totalUsers}">0</p>
-                                <a href="/admin/users" class="btn btn-primary">Manage Users</a>
+                                <h5 class="card-title text-info">Total Users</h5>
+                                <p class="card-text display-4 fw-bold" th:text="${totalUsers}">0</p>
+                                <a href="/admin/users" class="btn btn-outline-info">Manage Users</a>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Dashboard section for sales statistics -->
                     <div class="col">
-                        <div class="card h-100">
+                        <div class="card h-100 border-0 shadow-sm">
                             <div class="card-body">
-                                <h5 class="card-title">Sales Revenue</h5>
-                                <p class="card-text display-4" th:text="${totalRevenue}">$0.00</p>
-                                <a href="/admin/sales-report" class="btn btn-primary">View Sales Report</a>
+                                <h5 class="card-title text-danger">Sales Revenue</h5>
+                                <p class="card-text display-4 fw-bold" th:text="${totalRevenue}">$0.00</p>
+                                <a href="/admin/sales-report" class="btn btn-outline-danger">View Sales Report</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add a chart or graph section -->
+                <div class="row mt-5">
+                    <div class="col-12">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title">Sales Overview</h5>
+                                <canvas id="salesChart" width="400" height="200"></canvas>
                             </div>
                         </div>
                     </div>
@@ -114,5 +181,32 @@
 
     <!-- Include the scripts fragment -->
     <th:block th:replace="~{header :: scripts}"></th:block>
+    
+    <!-- Add Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Sample chart data - replace with actual data
+        var ctx = document.getElementById('salesChart').getContext('2d');
+        var salesChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Sales',
+                    data: [12, 19, 3, 5, 2, 3],
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 </html>

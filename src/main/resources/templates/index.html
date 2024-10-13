@@ -6,21 +6,110 @@
     <title>Viivi - Your Fashion Marketplace</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
     <link rel="stylesheet" href="/css/styles.css">
     <style>
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+        }
+        .navbar {
+            background-color: #ffffff;
+            box-shadow: 0 2px 4px rgba(0,0,0,.1);
+        }
+        .navbar-brand {
+            font-weight: 600;
+            color: #4a4a4a;
+        }
+        .nav-link {
+            color: #4a4a4a;
+            transition: color 0.3s ease;
+        }
+        .nav-link:hover {
+            color: #007bff;
+        }
+        .hero-section {
+            background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1483985988355-763728e1935b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
+            background-size: cover;
+            background-position: center;
+            color: #ffffff;
+            padding: 120px 0;
+            margin-bottom: 30px;
+        }
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        .hero-subtitle {
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+        .search-form {
+            background-color: rgba(255,255,255,0.2);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
+        }
+        .search-form input {
+            border: none;
+            border-radius: 5px 0 0 5px;
+        }
+        .search-form button {
+            border-radius: 0 5px 5px 0;
         }
         .category-card {
-            transition: transform 0.3s;
+            transition: all 0.3s ease;
+            border: none;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         .category-card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
         }
         .card-img-top {
-            width: 100%;
-            height: 300px;
+            height: 200px;
             object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        .category-card:hover .card-img-top {
+            transform: scale(1.05);
+        }
+        .card-body {
+            background-color: #ffffff;
+        }
+        .btn-outline-primary {
+            border-color: #007bff;
+            color: #007bff;
+        }
+        .btn-outline-primary:hover {
+            background-color: #007bff;
+            color: #ffffff;
+        }
+        .section-title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #4a4a4a;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 50px;
+            height: 3px;
+            background-color: #007bff;
+            margin: 10px auto;
+        }
+        .newsletter {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 40px;
         }
     </style>
 </head>
@@ -29,14 +118,18 @@
     <div th:insert="~{header :: header}"></div>
 
     <main>
-        <!-- Search Bar Section -->
-        <section class="py-4 bg-light">
+        <!-- Hero Section -->
+        <section class="hero-section">
             <div class="container">
                 <div class="row justify-content-center">
-                    <div class="col-md-8">
-                        <form class="d-flex">
-                            <input class="form-control me-2" type="search" placeholder="Search for anything" aria-label="Search">
-                            <button class="btn btn-primary" type="submit">Search</button>
+                    <div class="col-md-8 text-center">
+                        <h1 class="hero-title">Discover Your Style</h1>
+                        <p class="hero-subtitle">Explore the latest trends in fashion and home decor</p>
+                        <form class="search-form">
+                            <div class="input-group">
+                                <input class="form-control form-control-lg" type="search" placeholder="Search for anything" aria-label="Search">
+                                <button class="btn btn-primary btn-lg" type="submit">Search</button>
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -46,39 +139,39 @@
         <!-- Featured Categories -->
         <section class="py-5">
             <div class="container">
-                <h2 class="text-center mb-4">Shop by Category</h2>
+                <h2 class="section-title">Shop by Category</h2>
                 <div class="row">
                     <div class="col-md-3 col-sm-6 mb-4">
-                        <div class="card category-card">
-                            <img src="https://img.freepik.com/free-psd/view-sofa-interior-design-decor_23-2151772718.jpg?t=st=1727926671~exp=1727930271~hmac=28c9fc5f457dd9db168f3c21c26eae13343e9a537a2e8f2d46b9a5901812bdbc&w=1800" class="card-img-top" alt="Women's Fashion">
-                            <div class="card-body">
+                        <div class="category-card">
+                            <img src="https://img.freepik.com/free-psd/view-sofa-interior-design-decor_23-2151772718.jpg?t=st=1727926671~exp=1727930271~hmac=28c9fc5f457dd9db168f3c21c26eae13343e9a537a2e8f2d46b9a5901812bdbc&w=1800" class="card-img-top" alt="Furniture">
+                            <div class="card-body text-center">
                                 <h5 class="card-title">Furniture</h5>
                                 <a href="#" class="btn btn-outline-primary btn-sm">Shop Now</a>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-3 col-sm-6 mb-4">
-                        <div class="card category-card">
+                        <div class="category-card">
                             <img src="https://img.freepik.com/free-photo/high-fashion-portrait-young-beautiful-brunette-woman-wearing-nice-trendy-white-suit-sexy-fashion-model-posing-studio-fashionable-female-isolated-blue_158538-25880.jpg?t=st=1727926806~exp=1727930406~hmac=d52296fed934351bbbd27cea18872777d3f067e060d733ae58e63175bc8e9ed8&w=2000" class="card-img-top" alt="Men's Fashion">
-                            <div class="card-body">
+                            <div class="card-body text-center">
                                 <h5 class="card-title">Men's Fashion</h5>
                                 <a href="#" class="btn btn-outline-primary btn-sm">Shop Now</a>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-3 col-sm-6 mb-4">
-                        <div class="card category-card">
-                            <img src="https://img.freepik.com/free-photo/beautiful-luxury-necklace-jewelry-stand-neck_1339-7953.jpg?t=st=1727927127~exp=1727930727~hmac=4fc900de8135585e24bc6bc993ed56dbb50bd3fc8b1b291a5a16c00d3148737a&w=996" class="card-img-top" alt="Accessories">
-                            <div class="card-body">
+                        <div class="category-card">
+                            <img src="https://img.freepik.com/free-photo/beautiful-luxury-necklace-jewelry-stand-neck_1339-7953.jpg?t=st=1727927127~exp=1727930727~hmac=4fc900de8135585e24bc6bc993ed56dbb50bd3fc8b1b291a5a16c00d3148737a&w=996" class="card-img-top" alt="Jewelries and Watches">
+                            <div class="card-body text-center">
                                 <h5 class="card-title">Jewelries and Watches</h5>
                                 <a href="#" class="btn btn-outline-primary btn-sm">Shop Now</a>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-3 col-sm-6 mb-4">
-                        <div class="card category-card">
-                            <img src="https://img.freepik.com/free-photo/garden-tools_144627-34536.jpg?t=st=1727927253~exp=1727930853~hmac=fa595a02d0723c376c8e88f18cee56883bbf9fab21496a6f49c819cc83a9fe25&w=1060" class="card-img-top" alt="Shoes">
-                            <div class="card-body">
+                        <div class="category-card">
+                            <img src="https://img.freepik.com/free-photo/garden-tools_144627-34536.jpg?t=st=1727927253~exp=1727930853~hmac=fa595a02d0723c376c8e88f18cee56883bbf9fab21496a6f49c819cc83a9fe25&w=1060" class="card-img-top" alt="Home and Garden">
+                            <div class="card-body text-center">
                                 <h5 class="card-title">Home and Garden</h5>
                                 <a href="#" class="btn btn-outline-primary btn-sm">Shop Now</a>
                             </div>
@@ -89,16 +182,16 @@
         </section>
 
         <!-- Daily Deals -->
-        <section class="py-5 bg-light">
+        <section class="py-5 bg-white">
             <div class="container">
-                <h2 class="text-center mb-4">Daily Deals</h2>
+                <h2 class="section-title">Daily Deals</h2>
                 <div class="row">
                     <div class="col-md-3 col-sm-6 mb-4">
-                        <div class="card">
+                        <div class="card category-card">
                             <img src="/images/deal1.jpg" class="card-img-top" alt="Deal 1">
-                            <div class="card-body">
+                            <div class="card-body text-center">
                                 <h5 class="card-title">Summer Dress</h5>
-                                <p class="card-text"><strong>$29.99</strong> <span class="text-muted"><del>$49.99</del></span></p>
+                                <p class="card-text"><strong class="text-primary">$29.99</strong> <span class="text-muted"><del>$49.99</del></span></p>
                                 <a href="#" class="btn btn-primary btn-sm">Buy Now</a>
                             </div>
                         </div>
@@ -108,37 +201,21 @@
             </div>
         </section>
 
-        <!-- Featured Sellers
+        <!-- Newsletter Section -->
         <section class="py-5">
             <div class="container">
-                <h2 class="text-center mb-4">Featured Sellers</h2>
-                <div class="row">
-                    <div class="col-md-4 mb-4">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">Fashion Boutique</h5>
-                                <p class="card-text">Top-rated seller with unique fashion items</p>
-                                <a href="#" class="btn btn-outline-primary btn-sm">View Store</a>
-                            </div>
+                <div class="newsletter">
+                    <h2 class="section-title">Stay Updated</h2>
+                    <p class="text-center mb-4">Subscribe to our newsletter for the latest trends and exclusive offers</p>
+                    <div class="row justify-content-center">
+                        <div class="col-md-6">
+                            <form>
+                                <div class="input-group mb-3">
+                                    <input type="email" class="form-control form-control-lg" placeholder="Enter your email" aria-label="Email" aria-describedby="button-addon2" required>
+                                    <button class="btn btn-primary btn-lg" type="submit" id="button-addon2">Subscribe</button>
+                                </div>
+                            </form>
                         </div>
-                    </div>
-                    <-- Add more featured seller cards as needed -->
-                <!-- </div>
-            </div>
-        </section> -->
-
-        <!-- Newsletter Section -->
-        <section class="newsletter py-5 bg-light">
-            <div class="container">
-                <h2 class="text-center mb-4">Subscribe to Our Newsletter</h2>
-                <div class="row justify-content-center">
-                    <div class="col-md-6">
-                        <form>
-                            <div class="input-group mb-3">
-                                <input type="email" class="form-control" placeholder="Enter your email" aria-label="Email" aria-describedby="button-addon2" required>
-                                <button class="btn btn-primary" type="submit" id="button-addon2">Subscribe</button>
-                            </div>
-                        </form>
                     </div>
                 </div>
             </div>

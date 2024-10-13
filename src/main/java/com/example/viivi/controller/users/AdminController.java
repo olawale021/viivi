@@ -6,6 +6,9 @@ import com.example.viivi.models.products.ProductPhotosModel;
 import com.example.viivi.models.products.ProductPhotosRepository;
 import com.example.viivi.models.products.ProductRepository;
 import com.example.viivi.models.users.UserRepository;
+
+import jakarta.servlet.http.HttpServletRequest;
+
 import com.example.viivi.models.category.CategoryRepository;
 import com.example.viivi.models.category.CategoryModel;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,8 +46,12 @@ public class AdminController {
     }
 
     @GetMapping("/dashboard")
-    public String showDashboard(Model model) {
+    public String showDashboard(HttpServletRequest request, Model model) {
+
+        String currentUri = request.getRequestURI();
+
         // Querying the repository to get total counts for dashboard
+        
         long totalProducts = productRepository.count();
         long totalCategories = categoryRepository.count();
         // long totalOrders = orderRepository.count();
@@ -55,6 +62,7 @@ public class AdminController {
         // Add the values to the model
         model.addAttribute("totalProducts", totalProducts);
         model.addAttribute("totalCategories", totalCategories);
+        model.addAttribute("currentUri", currentUri);
         // // model.addAttribute("totalOrders", totalOrders);
         // model.addAttribute("totalUsers", totalUsers);
         // model.addAttribute("totalRevenue", totalRevenue);
