@@ -3,6 +3,11 @@ package com.example.viivi.models.products;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+
+
+
+import java.util.List;
+
 import com.example.viivi.models.category.CategoryModel;
 
 @Entity
@@ -25,6 +30,9 @@ public class ProductModel {
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     private CategoryModel category;  // Reference to Category entity
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+private List<ProductPhotosModel> photos;
 
     @Column(name = "stock_quantity")
     private Integer stockQuantity;
@@ -148,6 +156,15 @@ public class ProductModel {
     public void setUpdatedAt(Timestamp updatedAt) {
         this.updatedAt = updatedAt;
     }
+
+    // Getter and setter for photos
+public List<ProductPhotosModel> getPhotos() {
+    return photos;
+}
+
+public void setPhotos(List<ProductPhotosModel> photos) {
+    this.photos = photos;
+}
 
     // Add a method to return the category id for easier reference
     public Long getCategoryId() {

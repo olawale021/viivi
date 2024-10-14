@@ -5,6 +5,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.example.viivi.models.cart.CartModel;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
@@ -29,6 +31,10 @@ public class UserModel implements UserDetails {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
+
+    // New field for cart association
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private CartModel cart;
 
     // Constructors
     public UserModel() {}
@@ -81,6 +87,18 @@ public class UserModel implements UserDetails {
     public void setRole(Role role) {
         this.role = role;
     }
+
+     // Getters and setters for the cart
+     public CartModel getCart() {
+        return cart;
+    }
+
+    public void setCart(CartModel cart) {
+        this.cart = cart;
+    }
+
+
+    
 
     // UserDetails interface methods
     @Override
