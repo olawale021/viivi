@@ -13,6 +13,8 @@ SELECT * FROM categories;
 
 SELECT * FROM products;
 
+SELECT * FROM orders;
+
 CREATE TABLE products (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
@@ -70,3 +72,29 @@ CREATE TABLE cart_items (
     FOREIGN KEY (cart_id) REFERENCES carts(id) ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 );
+
+
+SELECT name FROM sqlite_master WHERE type='table';
+
+
+
+CREATE TABLE orders (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    total_price DECIMAL(10, 2) NOT NULL,
+    status TEXT DEFAULT 'pending',  -- Could be 'pending', 'shipped', 'delivered', etc.
+    placed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+
+CREATE TABLE order_items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    order_id INTEGER NOT NULL,
+    product_id INTEGER NOT NULL,
+    quantity INTEGER NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,  -- Price at the time of the order
+    FOREIGN KEY (order_id) REFERENCES orders(id),
+    FOREIGN KEY (product_id) REFERENCES products(id)
+);
+

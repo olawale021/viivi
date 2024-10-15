@@ -96,7 +96,7 @@ public String addToCart(@PathVariable Long productId, @RequestParam int quantity
     @Transactional  // Ensure the session stays open during the transaction
     public String removeFromCart(@PathVariable Long cartItemId, @AuthenticationPrincipal UserModel user, Model model) {
         Optional<CartModel> cartOptional = cartRepository.findByUserIdWithItems(user.getId());
-    
+
         if (cartOptional.isPresent()) {
             CartModel cart = cartOptional.get();
     
@@ -111,7 +111,7 @@ public String addToCart(@PathVariable Long productId, @RequestParam int quantity
     
         return "redirect:/cart";
     }
-    
+
     // Update item quantity in cart
     @PostMapping("/update/{cartItemId}")
     public String updateCartItem(@PathVariable Long cartItemId, @RequestParam int quantity) {

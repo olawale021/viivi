@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details - Viivi</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .order-container {
+            margin-top: 2rem;
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 1.5rem;
+        }
+
+        .order-details {
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .order-details strong {
+            color: #007bff;
+        }
+
+        .table th, .table td {
+            vertical-align: middle;
+        }
+
+        .table .product-image {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .total-price {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .back-to-orders {
+            margin-top: 1.5rem;
+            text-align: right;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header th:insert="~{header :: header}" class="mb-4"></header>
+
+    <div class="container">
+        <div class="order-container">
+            <h1>Order Details</h1>
+
+            <!-- Display order details -->
+            <div class="order-details">
+                <p>Order ID: <strong th:text="${order.id}">12345</strong></p>
+                <p>Status: <strong th:text="${order.status}">Pending</strong></p>
+                <p>Placed At: <strong th:text="${#dates.format(order.placedAt, 'dd MMM yyyy, HH:mm')}">15 October 2024, 10:30 AM</strong></p>
+            </div>
+
+            <!-- Order items table -->
+            <table class="table table-bordered table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col">Product</th>
+                        <th scope="col" class="text-center">Quantity</th>
+                        <th scope="col" class="text-end">Price</th>
+                        <th scope="col" class="text-end">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="item : ${orderItems}">
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <img th:src="${item.product.photos != null ? item.product.photos[0].photoUrl : '/images/default-product.png'}"
+                                    alt="Product Image" class="product-image me-3">
+                                <span th:text="${item.product.name}">Product Name</span>
+                            </div>
+                        </td>
+                        <td class="text-center" th:text="${item.quantity}">1</td>
+                        <td class="text-end" th:text="${#numbers.formatCurrency(item.price)}">£99.99</td>
+                        <td th:text="${#numbers.formatCurrency(item.price.multiply(item.quantity != null ? new java.math.BigDecimal(item.quantity) : java.math.BigDecimal.ZERO))}"></td>
+
+
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" class="text-end">Total Price:</td>
+                        <td class="text-end total-price" th:text="${#numbers.formatCurrency(order.totalPrice)}">£0.00</td>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <!-- Back to orders button -->
+            <div class="back-to-orders">
+                <a href="/orders" class="btn btn-primary">Back to Orders</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer th:insert="~{footer :: footer}" class="mt-4"></footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
