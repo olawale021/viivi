@@ -9,12 +9,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #6C63FF;
+            --primary-color: #007bff; /* Changed to blue */
             --secondary-color: #4CAF50;
             --background-color: #F0F2F5;
             --text-color: #333333;
             --card-background: #FFFFFF;
-            --hover-color: #5A52D5;
+            --hover-color: #0056b3; /* Changed to darker blue */
         }
         body {
             font-family: 'Roboto', sans-serif;
@@ -25,12 +25,20 @@
             margin-top: 3rem;
             margin-bottom: 3rem;
         }
-        .page-title {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            margin-bottom: 2rem;
-            text-align: center;
+        .breadcrumb-container {
+            margin-bottom: 1.5rem;
+        }
+        .breadcrumb {
+            background-color: transparent;
+            font-size: 0.9rem;
+            padding: 0.75rem 0;
+        }
+        .breadcrumb-item a {
+            color: #007bff; /* Changed to blue */
+            text-decoration: none;
+        }
+        .breadcrumb-item.active {
+            color: #6c757d;
         }
         .order-card {
             background-color: var(--card-background);
@@ -41,10 +49,10 @@
         }
         .order-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 6px 12px rgba(108, 99, 255, 0.1);
+            box-shadow: 0 6px 12px rgba(0, 123, 255, 0.1); /* Changed to blue */
         }
         .order-header {
-            background-color: var(--primary-color);
+            background-color: var(--primary-color); /* Changed to blue */
             color: white;
             padding: 1rem;
             border-top-left-radius: 12px;
@@ -86,12 +94,12 @@
         }
         .order-actions a {
             text-decoration: none;
-            color: var(--primary-color);
+            color: var(--primary-color); /* Changed to blue */
             font-weight: 500;
             transition: color 0.3s ease;
         }
         .order-actions a:hover {
-            color: var(--hover-color);
+            color: var(--hover-color); /* Changed to darker blue */
         }
         .no-orders {
             text-align: center;
@@ -106,16 +114,16 @@
             margin-bottom: 1.5rem;
         }
         .btn-start-shopping {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
+            background-color: var(--primary-color); /* Changed to blue */
+            border-color: var(--primary-color); /* Changed to blue */
             padding: 0.75rem 2rem;
             font-size: 1.1rem;
             font-weight: 500;
             transition: background-color 0.3s ease;
         }
         .btn-start-shopping:hover {
-            background-color: var(--hover-color);
-            border-color: var(--hover-color);
+            background-color: var(--hover-color); /* Changed to darker blue */
+            border-color: var(--hover-color); /* Changed to darker blue */
         }
     </style>
 </head>
@@ -124,9 +132,16 @@
     <div th:insert="~{header :: header}"></div>
 
     <!-- Orders Container -->
+    <div class="container breadcrumb-container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Your Orders</li>
+            </ol>
+        </nav>
+    </div>
+
     <div class="container orders-container">
-        <h1 class="page-title">Your Orders</h1>
-        
         <div th:if="${orders != null and orders.size() > 0}">
             <div class="row">
                 <div class="col-md-6 col-lg-4" th:each="order : ${orders}">
