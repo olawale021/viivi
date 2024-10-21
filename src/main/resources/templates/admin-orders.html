@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - View Orders</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #f8e8e6; /* Vibrant orange-red */
+            --secondary-color: #ffb400; /* Golden yellow */
+            --accent-color: #4CAF50; /* Vibrant green */
+            --background-color: #F8F9FA; /* Light grey */
+            --card-background: #FFFFFF; /* White */
+            --hover-color: #ff7f71; /* Slightly lighter red for hover */
+            --font-color: #343a40; /* Dark grey */
+            --border-radius: 15px;
+            --box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-color);
+            color: var(--font-color);
+        }
+        .container {
+            max-width: 1200px;
+            margin: 3rem auto;
+        }
+        h1 {
+            color: black;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .order-card {
+            background-color: var(--card-background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+        .order-header {
+            background-color: var(--primary-color);
+            color: black;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top-left-radius: var(--border-radius);
+            border-top-right-radius: var(--border-radius);
+        }
+        .order-body {
+            padding: 1.5rem;
+        }
+        .order-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .order-info span {
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+        .order-status {
+            font-weight: bold;
+        }
+        .order-status.pending { color: #FFC107; }
+        .order-status.shipped { color: #17A2B8; }
+        .order-status.delivered { color: var(--accent-color); }
+        .order-status.cancelled { color: #DC3545; }
+        .order-items {
+            background-color: var(--background-color);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1rem;
+            box-shadow: var(--box-shadow);
+        }
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            font-size: 1rem;
+            border-bottom: 1px solid #E0E0E0;
+        }
+        .item-row:last-child {
+            border-bottom: none;
+        }
+        .btn-update {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: black;
+            transition: background-color 0.3s ease;
+        }
+        .btn-update:hover {
+            background-color: var(--hover-color);
+            border-color: var(--hover-color);
+        }
+        select.form-select {
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div th:insert="~{header :: header}"></div>
+
+    <div class="container">
+        <h1>All Orders</h1>
+        
+        <div th:each="order : ${orders}" class="order-card">
+            <div class="order-header">
+                <span>Order #<span th:text="${order.id}"></span></span>
+                <span th:text="${#dates.format(order.placedAt, 'dd-MM-yyyy HH:mm')}"></span>
+            </div>
+            <div class="order-body">
+                <div class="order-info">
+                    <span>User: <strong th:text="${order.user.email}"></strong></span>
+                    <span>Total: <strong th:text="${#numbers.formatCurrency(order.totalPrice)}"></strong></span>
+                </div>
+                <form th:action="@{/admin/update-order/{orderId}(orderId=${order.id})}" method="post" class="d-flex align-items-center">
+                    <select name="status" class="form-select me-3">
+                        <option value="pending" th:selected="${order.status == 'pending'}">Pending</option>
+                        <option value="shipped" th:selected="${order.status == 'shipped'}">Shipped</option>
+                        <option value="delivered" th:selected="${order.status == 'delivered'}">Delivered</option>
+                        <option value="cancelled" th:selected="${order.status == 'cancelled'}">Cancelled</option>
+                    </select>
+                    <button type="submit" class="btn btn-update">Update Status</button>
+                </form>
+                <div class="order-items">
+                    <h6>Order Items:</h6>
+                    <div th:each="item : ${order.items}" class="item-row">
+                        <span th:text="${item.product.name}"></span>
+                        <span th:text="${item.quantity + ' x ' + #numbers.formatCurrency(item.price)}"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:insert="~{footer :: footer}"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -6,70 +6,97 @@
     <title>Order Details - Viivi</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #6C63FF;
+            --secondary-color: #4CAF50;
+            --background-color: #F0F2F5;
+            --text-color: #333333;
+            --card-background: #FFFFFF;
+            --hover-color: #5A52D5;
+        }
         body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f8f9fa;
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
         }
-
         .order-container {
-            margin-top: 2rem;
-            background-color: white;
+            margin-top: 3rem;
+            margin-bottom: 3rem;
+            background-color: var(--card-background);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
-
+        .order-header {
+            border-bottom: 2px solid var(--background-color);
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
         h1 {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 1.5rem;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
         }
-
-        .order-details {
+        .order-info {
+            background-color: var(--background-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .order-info p {
+            margin-bottom: 0.5rem;
             font-size: 1.1rem;
-            margin-bottom: 1.5rem;
         }
-
-        .order-details strong {
-            color: #007bff;
+        .order-info strong {
+            color: var(--primary-color);
+            font-weight: 500;
         }
-
-        .table th, .table td {
-            vertical-align: middle;
+        .order-item {
+            background-color: var(--card-background);
+            border: 1px solid var(--background-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-
-        .table .product-image {
-            width: 60px;
-            height: 60px;
+        .order-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(108, 99, 255, 0.1);
+        }
+        .product-image {
+            width: 80px;
+            height: 80px;
             object-fit: cover;
             border-radius: 8px;
         }
-
+        .product-name {
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+        .product-price {
+            font-weight: 700;
+            color: var(--secondary-color);
+        }
         .total-price {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #007bff;
-        }
-
-        .back-to-orders {
-            margin-top: 1.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--secondary-color);
             text-align: right;
+            margin-top: 2rem;
         }
-
-        .btn-primary {
-            background-color: #007bff;
-            border-color: #007bff;
+        .btn-back {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            padding: 0.75rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
         }
-
-        .btn-primary:hover {
-            background-color: #0056b3;
-            border-color: #0056b3;
+        .btn-back:hover {
+            background-color: var(--hover-color);
+            border-color: var(--hover-color);
         }
     </style>
 </head>
@@ -77,55 +104,50 @@
     <!-- Header -->
     <header th:insert="~{header :: header}" class="mb-4"></header>
 
-    <div class="container">
-        <div class="order-container">
+    <div class="container order-container">
+        <div class="order-header">
             <h1>Order Details</h1>
+        </div>
 
-            <!-- Display order details -->
-            <div class="order-details">
-                <p>Order ID: <strong th:text="${order.id}">12345</strong></p>
-                <p>Status: <strong th:text="${order.status}">Pending</strong></p>
-                <p>Placed At: <strong th:text="${#dates.format(order.placedAt, 'dd MMM yyyy, HH:mm')}">15 October 2024, 10:30 AM</strong></p>
+        <!-- Display order details -->
+        <div class="order-info">
+            <p>Order ID: <strong th:text="${order.id}">12345</strong></p>
+            <p>Status: <strong th:text="${order.status}">Pending</strong></p>
+            <p>Placed At: <strong th:text="${#dates.format(order.placedAt, 'dd MMM yyyy, HH:mm')}">15 October 2024, 10:30 AM</strong></p>
+        </div>
+
+        <!-- Order items -->
+        <div class="order-items">
+            <div th:each="item : ${orderItems}" class="order-item">
+                <div class="row align-items-center">
+                    <div class="col-md-2">
+                        <img th:src="${item.product.photos != null ? item.product.photos[0].photoUrl : '/images/default-product.png'}"
+                            alt="Product Image" class="product-image">
+                    </div>
+                    <div class="col-md-4">
+                        <div class="product-details">
+                            <p class="product-name" th:text="${item.product.name}">Product Name</p>
+                            <p>Quantity: <span th:text="${item.quantity}">1</span></p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-md-end">
+                        <p class="product-price" th:text="${#numbers.formatCurrency(item.price)}">£99.99</p>
+                    </div>
+                    <div class="col-md-3 text-md-end">
+                        <p class="product-price" th:text="${#numbers.formatCurrency(item.price.multiply(item.quantity != null ? new java.math.BigDecimal(item.quantity) : java.math.BigDecimal.ZERO))}">£99.99</p>
+                    </div>
+                </div>
             </div>
+        </div>
 
-            <!-- Order items table -->
-            <table class="table table-bordered table-hover align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th scope="col">Product</th>
-                        <th scope="col" class="text-center">Quantity</th>
-                        <th scope="col" class="text-end">Price</th>
-                        <th scope="col" class="text-end">Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="item : ${orderItems}">
-                        <td>
-                            <div class="d-flex align-items-center">
-                                <img th:src="${item.product.photos != null ? item.product.photos[0].photoUrl : '/images/default-product.png'}"
-                                    alt="Product Image" class="product-image me-3">
-                                <span th:text="${item.product.name}">Product Name</span>
-                            </div>
-                        </td>
-                        <td class="text-center" th:text="${item.quantity}">1</td>
-                        <td class="text-end" th:text="${#numbers.formatCurrency(item.price)}">£99.99</td>
-                        <td th:text="${#numbers.formatCurrency(item.price.multiply(item.quantity != null ? new java.math.BigDecimal(item.quantity) : java.math.BigDecimal.ZERO))}"></td>
+        <!-- Total price -->
+        <div class="total-price">
+            Total: <span th:text="${#numbers.formatCurrency(order.totalPrice)}">£0.00</span>
+        </div>
 
-
-                    </tr>
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <td colspan="3" class="text-end">Total Price:</td>
-                        <td class="text-end total-price" th:text="${#numbers.formatCurrency(order.totalPrice)}">£0.00</td>
-                    </tr>
-                </tfoot>
-            </table>
-
-            <!-- Back to orders button -->
-            <div class="back-to-orders">
-                <a href="/orders" class="btn btn-primary">Back to Orders</a>
-            </div>
+        <!-- Back to orders button -->
+        <div class="text-center mt-4">
+            <a href="/orders" class="btn btn-primary btn-back">Back to Orders</a>
         </div>
     </div>
 

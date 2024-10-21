@@ -12,9 +12,10 @@ public class CartItemModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "cart_id", nullable = false)
     private CartModel cart;
+
 
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)

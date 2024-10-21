@@ -7,18 +7,28 @@ import java.util.Optional;
 
 import org.hibernate.mapping.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.viivi.models.category.CategoryModel;
 import com.example.viivi.models.category.CategoryRepository;
+import com.example.viivi.models.favorite.FavoriteModel;
+import com.example.viivi.models.favorite.FavoriteRepository;
 import com.example.viivi.models.products.ProductModel;
 import com.example.viivi.models.products.ProductPhotosModel;
 import com.example.viivi.models.products.ProductPhotosRepository;
 import com.example.viivi.models.products.ProductRepository;
+import com.example.viivi.models.users.UserModel;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import java.util.stream.Collectors;
 
@@ -36,22 +46,37 @@ public class ProductController {
     @Autowired
     private CategoryRepository categoryRepository;
 
-    @GetMapping
-    public String showAllProducts(Model model) {
-        List<ProductModel> products = productRepository.findAll();
+    @Autowired
+    private FavoriteRepository favoriteRepository;
+
+   @GetMapping
+    public String showAllProducts(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "6") int size,  // Show 6 products per page
+            Model model) {
+
+        // Create pageable object for pagination
+        Pageable pageable = PageRequest.of(page, size);
+        
+        // Fetch paginated products
+        Page<ProductModel> productPage = productRepository.findAll(pageable);
         List<CategoryModel> categories = categoryRepository.findAll();
 
-         // Fetch the primary photo for each product
-        java.util.Map<Long, String> productImages = products.stream().collect(Collectors.toMap(
+        // Fetch the primary photo for each product
+        java.util.Map<Long, String> productImages = productPage.getContent().stream().collect(Collectors.toMap(
                 ProductModel::getId,
                 product -> {
                     ProductPhotosModel primaryPhoto = productPhotosRepository.findByProductIdAndIsPrimaryTrue(product.getId());
-                    return (primaryPhoto != null) ? primaryPhoto.getPhotoUrl() : "/images/default-product.png";  // Default image if none found
+                    return (primaryPhoto != null) ? primaryPhoto.getPhotoUrl() : "/images/default-product.png";
                 }
         ));
+
         model.addAttribute("categoryList", categories);
         model.addAttribute("productImages", productImages);
-        model.addAttribute("products", products);
+        model.addAttribute("products", productPage.getContent());  // Pass paginated content
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", productPage.getTotalPages());
+
         return "all-products";
     }
 
@@ -65,7 +90,7 @@ public class ProductController {
 
     // Show product details by ID
     @GetMapping("/{id}")
-    public String showProductById(@PathVariable Long id, Model model) {
+    public String showProductById(@PathVariable Long id, Model model, @AuthenticationPrincipal UserModel currentUser) {
         // Fetch the product from the database
         Optional<ProductModel> productOptional = productRepository.findById(id);
     
@@ -83,9 +108,30 @@ public class ProductController {
         model.addAttribute("product", product);
         model.addAttribute("productImage", productImage);
     
+        // Initialize variables for favorite logic
+        boolean favoriteAlreadyAdded = false;
+        FavoriteModel favorite = null;
+    
+        // Check if the user is logged in
+        if (currentUser != null) {
+            // Check if the product is already in the user's favorites
+            Optional<FavoriteModel> favoriteOptional = favoriteRepository.findByUserAndProduct(currentUser, product);
+            if (favoriteOptional.isPresent()) {
+                favoriteAlreadyAdded = true;
+                favorite = favoriteOptional.get(); // Get the favorite if it exists
+            }
+        }
+    
+        // Add the current authenticated user, favorite status, and favorite to the model
+        model.addAttribute("user", currentUser);
+        model.addAttribute("favoriteAlreadyAdded", favoriteAlreadyAdded);
+        model.addAttribute("favorite", favorite);
+    
         // Return the product-details template
         return "product-details";
     }
+    
+
     
 
 

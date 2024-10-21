@@ -10,7 +10,6 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-            
         }
         .main-content {
             display: flex;
@@ -67,7 +66,7 @@
             color: inherit;
         }
         .product-image {
-            height: 150px; /* Reduced image height */
+            height: 150px;
             background-color: #f8f9fa;
             display: flex;
             align-items: center;
@@ -79,19 +78,19 @@
             object-fit: contain;
         }
         .product-info {
-            padding: 0.75rem; /* Reduced padding */
+            padding: 0.75rem;
             display: flex;
             flex-direction: column;
             flex-grow: 1;
         }
         .product-title {
-            font-size: 0.9rem; /* Reduced font size */
+            font-size: 0.9rem;
             font-weight: 600;
             margin-bottom: 0.25rem;
             color: #333;
         }
         .product-price {
-            font-size: 1rem; /* Reduced font size */
+            font-size: 1rem;
             font-weight: bold;
             color: #B12704;
             margin-bottom: 0.25rem;
@@ -124,7 +123,14 @@
     <div th:insert="~{header :: header}"></div>
 
     <div class="container">
-        <h1 class="my-4">All Products</h1>
+        <!-- Breadcrumbs -->
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/}">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">All Products</li>
+            </ol>
+        </nav>
+
         <div class="main-content">
             <div class="filters">
                 <h2 class="h5 mb-3">Filters</h2>
@@ -169,6 +175,31 @@
                 </div>
             </div>
         </div>
+
+        <!-- Pagination Controls -->
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-center mt-12">
+                <!-- Previous Page Link -->
+                <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                    <a class="page-link" th:href="@{/products(size=${size}, page=${currentPage - 1})}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+
+                <!-- Page Numbers -->
+                <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                    th:classappend="${i == currentPage} ? 'active'">
+                    <a class="page-link" th:href="@{/products(size=${size}, page=${i})}" th:text="${i + 1}">1</a>
+                </li>
+
+                <!-- Next Page Link -->
+                <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                    <a class="page-link" th:href="@{/products(size=${size}, page=${currentPage + 1})}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
     </div>
 
     <!-- Footer -->

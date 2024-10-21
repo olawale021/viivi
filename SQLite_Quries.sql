@@ -6,6 +6,7 @@ CREATE TABLE users (
     full_name TEXT
 );
 
+SELECT name FROM sqlite_master WHERE type='table';
 
 SELECT * FROM users;
 
@@ -13,7 +14,18 @@ SELECT * FROM categories;
 
 SELECT * FROM products;
 
+SELECT * FROM product_photos;
+
 SELECT * FROM orders;
+
+SELECT * FROM carts;
+
+SELECT * FROM cart_items;
+
+SELECT * FROM order_items;
+
+SELECT * FROM favorites;
+
 
 CREATE TABLE products (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -95,6 +107,16 @@ CREATE TABLE order_items (
     quantity INTEGER NOT NULL,
     price DECIMAL(10, 2) NOT NULL,  -- Price at the time of the order
     FOREIGN KEY (order_id) REFERENCES orders(id),
+    FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
+CREATE TABLE favorites (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    product_id INTEGER NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (product_id) REFERENCES products(id)
 );
 

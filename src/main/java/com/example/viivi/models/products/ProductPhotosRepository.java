@@ -2,6 +2,9 @@ package com.example.viivi.models.products;
 
 
 import com.example.viivi.models.products.ProductPhotosModel;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,5 +17,6 @@ public interface ProductPhotosRepository extends JpaRepository<ProductPhotosMode
 
     // Additional query method to get the primary photo of a product
     ProductPhotosModel findByProductIdAndIsPrimaryTrue(Long productId);
+
 }
 

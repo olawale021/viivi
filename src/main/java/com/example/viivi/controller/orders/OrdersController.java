@@ -59,33 +59,47 @@ public class OrdersController {
     }
 
     // Process the checkout and create a new order
-@PostMapping("/checkout")
-public String checkoutOrder(@AuthenticationPrincipal UserModel user) {
-    Optional<CartModel> cartOptional = cartRepository.findByUserIdWithItems(user.getId());
+    @PostMapping("/checkout")
+    public String checkoutOrder(@AuthenticationPrincipal UserModel user) {
+        Optional<CartModel> cartOptional = cartRepository.findByUserIdWithItems(user.getId());
+    
+        if (cartOptional.isPresent()) {
+            CartModel cart = cartOptional.get();
+            if (!cart.getItems().isEmpty()) {
+                // Create a new order using the updated constructor
+                OrdersModel order = new OrdersModel(user, BigDecimal.valueOf(cart.getTotalPrice()), "pending", new java.sql.Timestamp(System.currentTimeMillis()));
+                ordersRepository.save(order);
+    
+                // Save order items and update product stock
+                for (CartItemModel cartItem : cart.getItems()) {
+                    ProductModel product = cartItem.getProduct();
+    
+                    // Check if there's enough stock
+                    if (product.getStockQuantity() >= cartItem.getQuantity()) {
+                        // Deduct stock
+                        product.setStockQuantity(product.getStockQuantity() - cartItem.getQuantity());
+                        productRepository.save(product);
+    
+                        // Create and save order item
+                        OrderItemsModel orderItem = new OrderItemsModel(order, product, cartItem.getQuantity(), cartItem.getPrice());
+                        orderItemsRepository.save(orderItem);
+                    } else {
+                        // If there's insufficient stock, you might want to handle this case (e.g., display an error)
+                        return "redirect:/cart?error=insufficient_stock";
+                    }
+                }
 
-    if (cartOptional.isPresent()) {
-        CartModel cart = cartOptional.get();
-        if (!cart.getItems().isEmpty()) {
-            // Create a new order using the updated constructor
-            OrdersModel order = new OrdersModel(user, BigDecimal.valueOf(cart.getTotalPrice()), "pending", new java.sql.Timestamp(System.currentTimeMillis()));
-            ordersRepository.save(order);
-
-            // Save order items
-            for (CartItemModel cartItem : cart.getItems()) {
-                OrderItemsModel orderItem = new OrderItemsModel(order, cartItem.getProduct(), cartItem.getQuantity(), cartItem.getPrice());
-                orderItemsRepository.save(orderItem);
+                // Clear the user's cart after placing the order
+                cart.getItems().clear();
+                cartRepository.save(cart);
+    
+                return "redirect:/orders"; // Redirect to the order list page after successful checkout
             }
-
-            // Clear the user's cart after placing the order
-            cart.getItems().clear();
-            cartRepository.save(cart);
-
-            return "redirect:/orders"; // Redirect to the order list page after successful checkout
         }
+    
+        return "redirect:/cart"; // Redirect to cart if something goes wrong
     }
     
-    return "redirect:/cart"; // Redirect to cart if something goes wrong
-}
 
 
     // View all orders for the logged-in user
@@ -98,7 +112,7 @@ public String checkoutOrder(@AuthenticationPrincipal UserModel user) {
 
     // View a specific order
     @GetMapping("/{orderId}")
-public String viewOrder(@PathVariable Long orderId, Model model) {
+    public String viewOrder(@PathVariable Long orderId, Model model) {
     Optional<OrdersModel> order = ordersRepository.findById(orderId);
 
     if (order.isPresent()) {

@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
+import java.util.List;
+
 @Entity
 @Table(name = "orders")
 public class OrdersModel {
@@ -27,17 +29,30 @@ public class OrdersModel {
     @Column(name = "placed_at", nullable = false)
     private Timestamp placedAt;
 
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<OrderItemsModel> items;
+    
+
+
     // Default constructor (required by JPA)
     public OrdersModel() {
     }
 
-    // Constructor to initialize the order with necessary fields
     public OrdersModel(UserModel user, BigDecimal totalPrice, String status, Timestamp placedAt) {
         this.user = user;
         this.totalPrice = totalPrice;
         this.status = status;
         this.placedAt = placedAt;
     }
+
+    public OrdersModel(UserModel user, BigDecimal totalPrice, String status, Timestamp placedAt, List<OrderItemsModel> items) {
+        this.user = user;
+        this.totalPrice = totalPrice;
+        this.status = status;
+        this.placedAt = placedAt;
+        this.items = items;
+    }
+
 
     // Getters and setters
     public Long getId() {
@@ -78,5 +93,12 @@ public class OrdersModel {
 
     public void setPlacedAt(Timestamp placedAt) {
         this.placedAt = placedAt;
+    }
+    public List<OrderItemsModel> getItems() {
+        return items;
+    }
+    
+    public void setItems(List<OrderItemsModel> items) {
+        this.items = items;
     }
 }

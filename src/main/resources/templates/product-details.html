@@ -48,11 +48,6 @@
             margin-bottom: 1rem;
         }
 
-        .product-rating {
-            color: #ffa41c;
-            margin-bottom: 1rem;
-        }
-
         .product-price {
             font-size: 2rem;
             font-weight: bold;
@@ -80,10 +75,20 @@
             border-radius: 4px;
             font-size: 1.1rem;
             cursor: pointer;
+            margin-bottom: 1rem; /* Added margin to space out the buttons */
         }
 
         .add-to-cart-btn:hover {
             background-color: #0056b3;
+        }
+
+        .btn-outline-primary {
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .btn-outline-primary i {
+            margin-right: 5px;
         }
 
         /* Breadcrumb */
@@ -104,6 +109,17 @@
 
         .breadcrumb a:hover {
             text-decoration: underline;
+        }
+
+        /* Styles for already added to favorites */
+        .btn-favorite-added {
+            color: #e0245e; /* Red color for added to favorites */
+            border-color: #e0245e;
+        }
+
+        .btn-favorite-added:hover {
+            background-color: #e0245e;
+            color: white;
         }
     </style>
 </head>
@@ -148,6 +164,27 @@
                     </div>
                     <button type="submit" class="add-to-cart-btn">Add to Cart</button>
                 </form>
+
+                <form th:action="@{/favorites/toggle}" method="post">
+                    <input type="hidden" name="userId" th:value="${user != null ? user.id : ''}">
+                    <input type="hidden" name="productId" th:value="${product.id}">
+                    
+                    <!-- If already a favorite, include the favorite ID for removal -->
+                    <input type="hidden" name="favoriteId" th:if="${favoriteAlreadyAdded}" th:value="${favorite != null ? favorite.id : ''}">
+                    
+                    <button type="submit" class="btn"
+                        th:classappend="${favoriteAlreadyAdded ? 'btn-outline-danger' : 'btn-outline-primary'}">
+                        <i class="bi" th:classappend="${favoriteAlreadyAdded ? 'bi-heart-fill' : 'bi-heart'}"></i> 
+                        <span th:text="${favoriteAlreadyAdded ? 'Remove from Favorites' : 'Add to Favorites'}"></span>
+                    </button>
+                </form>
+                
+                
+
+                <!-- Show a message if the user is not logged in -->
+                <div th:if="${user == null}">
+                    <p>Please <a th:href="@{/login}">log in</a> to add this product to your favorites.</p>
+                </div>
             </div>
         </div>
     </div>

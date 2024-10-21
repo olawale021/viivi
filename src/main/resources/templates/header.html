@@ -70,23 +70,32 @@
                         </li>
     
                         <!-- User Authentication Dropdown -->
-                        <li th:if="${#authentication != null and #authentication.authenticated and #authentication.name != 'anonymousUser'}" class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <span th:text="${#authentication.name}"></span>
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" th:href="@{/profile}">Profile</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" th:href="@{/orders}">Orders</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <form action="/logout" method="POST" class="dropdown-item">
-                                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-                                        <button type="submit" class="dropdown-item">Logout</button>
-                                    </form>
-                                </li>
-                            </ul>
-                        </li>
+                    <li th:if="${#authentication != null and #authentication.authenticated and #authentication.name != 'anonymousUser'}" class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span th:text="${#authentication.name}"></span>
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" th:href="@{/profile}">Profile</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" th:href="@{/orders}">Orders</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" th:href="@{/favorites}">Favorites</a></li>
+
+                            <!-- Conditionally render Dashboard for ADMIN role -->
+                            <li th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                                <hr class="dropdown-divider">
+                                <a class="dropdown-item" th:href="@{/admin/dashboard}">Dashboard</a>
+                            </li>
+
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form action="/logout" method="POST" class="dropdown-item">
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                    <button type="submit" class="dropdown-item">Logout</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
     
                         <!-- If no user is authenticated, show Login and Sign Up links -->
                         <li th:if="${#authentication == null or #authentication.name == 'anonymousUser'}" class="nav-item">

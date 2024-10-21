@@ -5,6 +5,9 @@ import com.example.viivi.models.products.ProductModel;
 import com.example.viivi.models.products.ProductPhotosModel;
 import com.example.viivi.models.products.ProductPhotosRepository;
 import com.example.viivi.models.products.ProductRepository;
+import com.example.viivi.models.orders.OrderItemsRepository;
+import com.example.viivi.models.orders.OrdersModel;
+import com.example.viivi.models.orders.OrdersRepository;
 import com.example.viivi.models.users.UserRepository;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,18 +34,20 @@ public class AdminController {
     private final CategoryRepository categoryRepository;
     private final ProductPhotosRepository productPhotosRepository;
     private final SaveImageFile saveImageFile;
-    // private final OrderRepository orderRepository;
-    // private final UserRepository userRepository;
+    private final OrdersRepository ordersRepository;
+    private final UserRepository userRepository;
+    private final OrderItemsRepository orderItemsRepository;
 
     @Autowired
     public AdminController(ProductRepository productRepository, CategoryRepository categoryRepository,
-     ProductPhotosRepository productPhotosRepository, SaveImageFile saveImageFile) {
+    ProductPhotosRepository productPhotosRepository, SaveImageFile saveImageFile, OrdersRepository ordersRepository, UserRepository userRepository, OrderItemsRepository orderItemsRepository) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
-        // this.orderRepository = orderRepository;
-        // this.userRepository = userRepository;
+        this.ordersRepository = ordersRepository;
+        this.userRepository = userRepository;
         this.productPhotosRepository = productPhotosRepository;
         this.saveImageFile = saveImageFile;
+        this.orderItemsRepository = orderItemsRepository;
     }
 
     @GetMapping("/dashboard")
@@ -54,8 +59,8 @@ public class AdminController {
         
         long totalProducts = productRepository.count();
         long totalCategories = categoryRepository.count();
-        // long totalOrders = orderRepository.count();
-        // long totalUsers = userRepository.count();
+        long totalOrders = ordersRepository.count();
+        long totalUsers = userRepository.count();
         // Assuming you have a method to calculate total revenue
         // double totalRevenue = orderRepository.calculateTotalRevenue(); // Optional
 
@@ -63,12 +68,41 @@ public class AdminController {
         model.addAttribute("totalProducts", totalProducts);
         model.addAttribute("totalCategories", totalCategories);
         model.addAttribute("currentUri", currentUri);
-        // // model.addAttribute("totalOrders", totalOrders);
-        // model.addAttribute("totalUsers", totalUsers);
+        model.addAttribute("totalOrders", totalOrders);
+        model.addAttribute("totalUsers", totalUsers);
         // model.addAttribute("totalRevenue", totalRevenue);
 
         return "admin-dashboard"; // Maps to the Thymeleaf template `admin-dashboard.html`
     }
+
+    // Get all orders for the admin view
+    @GetMapping("/view-orders")
+    public String viewOrders(Model model) {
+        model.addAttribute("orders", ordersRepository.findAll());
+        return "admin-orders";  // This is the Thymeleaf template you will create
+    }
+
+    // Update order status
+    @PostMapping("/update-order/{orderId}")
+    public String updateOrderStatus(@PathVariable Long orderId, @RequestParam String status) {
+        Optional<OrdersModel> orderOptional = ordersRepository.findById(orderId);
+        
+        if (orderOptional.isPresent()) {
+            OrdersModel order = orderOptional.get();
+            order.setStatus(status);
+            ordersRepository.save(order);
+        }
+        
+        return "redirect:/admin/view-orders";  // Redirect back to the orders list after updating
+    }
+
+    // Get all orders for the admin view
+    // @GetMapping("/orders")
+    // public String listOrders(Model model) {
+    //     List<OrdersModel> orders = ordersRepository.findAll();
+    //     model.addAttribute("orders", orders);
+    //     return "admin-orders";
+    // }
 
     // Display all products
     @GetMapping("/products")

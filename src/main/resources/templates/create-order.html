@@ -10,51 +10,73 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: #f8f9fa;
+            background-color: #f4f5f7;
         }
-
         .order-summary-container {
-            margin-top: 2rem;
+            margin-top: 3rem;
             background-color: white;
             padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
-
         h1 {
             font-size: 2rem;
-            font-weight: bold;
+            font-weight: 600;
             color: #333;
             margin-bottom: 1.5rem;
         }
-
-        .table th, .table td {
-            vertical-align: middle;
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #e9ecef;
         }
-
-        .table .product-image {
-            width: 60px;
-            height: 60px;
+        .order-item:last-child {
+            border-bottom: none;
+        }
+        .product-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .product-image {
+            width: 70px;
+            height: 70px;
             object-fit: cover;
             border-radius: 8px;
+            background-color: #f8f9fa;
         }
-
-        .total-price {
+        .product-details {
+            display: flex;
+            flex-direction: column;
+        }
+        .product-name {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        .product-price, .product-total {
             font-size: 1.2rem;
-            font-weight: bold;
+            font-weight: 600;
             color: #007bff;
         }
-
+        .order-summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 2rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
         .action-buttons {
             display: flex;
-            justify-content: flex-end;
+            justify-content: space-between;
             gap: 1rem;
-            margin-top: 1.5rem;
+            margin-top: 2rem;
         }
-
-        .btn-primary {
-            background-color: #007bff;
-            border-color: #007bff;
+        .btn-primary, .btn-outline-primary {
+            padding: 0.75rem 2rem;
+            font-size: 1rem;
         }
     </style>
 </head>
@@ -62,53 +84,37 @@
     <!-- Header -->
     <div th:insert="~{header :: header}"></div>
 
-    <!-- Order Summary -->
     <div class="container">
         <div class="order-summary-container">
             <h1>Order Summary</h1>
 
-            <!-- Check if the cart is not null and has items -->
+            <!-- Order Items -->
             <div th:if="${cart != null && cart.items.size() > 0}">
-                <table class="table table-bordered table-hover align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th scope="col">Product</th>
-                            <th scope="col" class="text-center">Quantity</th>
-                            <th scope="col" class="text-end">Price</th>
-                            <th scope="col" class="text-end">Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="item : ${cart.items}">
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <img th:src="${item.product.photos != null ? item.product.photos[0].photoUrl : '/images/default-product.png'}"
-                                         alt="Product Image" class="product-image me-3">
-                                    <span th:text="${item.product.name}">Product Name</span>
-                                </div>
-                            </td>
-                            <td class="text-center" th:text="${item.quantity}">1</td>
-                            <td class="text-end" th:text="${#numbers.formatCurrency(item.product.price)}">£99.99</td>
-                            <td class="text-end" th:text="${#numbers.formatCurrency(item.price)}">£99.99</td>
-                        </tr>
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <td colspan="3" class="text-end">Total Price:</td>
-                            <td class="text-end total-price" th:text="${#numbers.formatCurrency(totalPrice)}">£0.00</td>
-                        </tr>
-                    </tfoot>
-                </table>
+                <div class="order-item" th:each="item : ${cart.items}">
+                    <div class="product-info">
+                        <img th:src="${item.product.photos != null ? item.product.photos[0].photoUrl : '/images/default-product.png'}" alt="Product Image" class="product-image">
+                        <div class="product-details">
+                            <span class="product-name" th:text="${item.product.name}">Product Name</span>
+                            <span class="quantity" th:text="'Qty: ' + ${item.quantity}">Qty: 1</span>
+                        </div>
+                    </div>
+                    <div class="product-price" th:text="${#numbers.formatCurrency(item.product.price)}">£99.99</div>
+                </div>
 
-                <!-- Checkout button -->
+                <!-- Total Price and Actions -->
+                <div class="order-summary">
+                    <span>Total Price:</span>
+                    <span th:text="${#numbers.formatCurrency(totalPrice)}">£0.00</span>
+                </div>
                 <div class="action-buttons">
+                    <a href="/cart" class="btn btn-outline-primary">Back to Cart</a>
                     <form th:action="@{/orders/checkout}" method="post">
                         <button type="submit" class="btn btn-primary">Checkout</button>
                     </form>
                 </div>
             </div>
 
-            <!-- Display message if cart is empty -->
+            <!-- Empty Cart Message -->
             <div th:if="${cart == null || cart.items.size() == 0}">
                 <p>Your cart is empty.</p>
                 <a href="/products" class="btn btn-primary">Browse Products</a>
