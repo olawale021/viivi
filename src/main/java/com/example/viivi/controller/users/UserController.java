@@ -1,20 +1,28 @@
 package com.example.viivi.controller.users;
 
+import com.example.viivi.models.category.CategoryModel;
+import com.example.viivi.models.category.CategoryRepository;
 import com.example.viivi.models.users.UserModel;
 import com.example.viivi.models.users.Role;
 import com.example.viivi.models.users.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.List;
+
 @Controller
 @RequestMapping("/users")
 public class UserController {
 
     private final UserRepository userRepository;
+
+    @Autowired
+    private CategoryRepository categoryRepository;
 
     @Autowired
 private PasswordEncoder passwordEncoder;
@@ -54,6 +62,61 @@ private PasswordEncoder passwordEncoder;
     @GetMapping("/login")
     public String showLoginForm() {
         return "login";
+    }
+
+    @GetMapping("/preferences")
+    public String showPreferencesForm(Model model, Authentication authentication) {
+        // Check if user is authenticated
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return "redirect:/users/login"; // Redirect to login if not authenticated
+        }
+
+        // Fetch the logged-in user
+        String userEmail = authentication.getName();
+        UserModel loggedInUser = userRepository.findByEmail(userEmail);
+
+        // Fetch the list of categories from the database
+        List<CategoryModel> categories = categoryRepository.findAll();
+
+        // Add the categories and user to the model
+        model.addAttribute("categories", categories);
+        model.addAttribute("user", loggedInUser);
+
+        return "category-preferences"; // Ensure this matches your Thymeleaf template name
+    }
+
+    @PostMapping("/preferences")
+    public String updatePreferences(@RequestParam(value = "preferredCategories", required = false) List<Long> preferredCategories,
+                                    Authentication authentication,
+                                    RedirectAttributes redirectAttributes) {
+        // Check if user is authenticated
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return "redirect:/users/login"; // Redirect to login if not authenticated
+        }
+
+        // Fetch the logged-in user
+        String userEmail = authentication.getName();
+        UserModel loggedInUser = userRepository.findByEmail(userEmail);
+
+        // Set the selected categories in the user model
+        if (preferredCategories != null && preferredCategories.size() > 0) {
+            // Set the top categories, ensuring no more than 3 categories are saved
+            loggedInUser.setTopCategory1(preferredCategories.size() > 0 ? Long.valueOf(preferredCategories.get(0).toString()) : null);
+            loggedInUser.setTopCategory2(preferredCategories.size() > 1 ? Long.valueOf(preferredCategories.get(1).toString()) : null);
+            loggedInUser.setTopCategory3(preferredCategories.size() > 2 ? Long.valueOf(preferredCategories.get(2).toString()) : null);
+        } else {
+            // Reset categories if none are selected
+            loggedInUser.setTopCategory1(null);
+            loggedInUser.setTopCategory2(null);
+            loggedInUser.setTopCategory3(null);
+        }
+
+        // Update the user in the database
+        userRepository.save(loggedInUser);
+
+        // Add a success message and redirect back to the preferences page
+        redirectAttributes.addFlashAttribute("message", "Preferences updated successfully.");
+        return "redirect:/users/preferences";
     }
 
 }

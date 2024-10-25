@@ -27,6 +27,8 @@ SELECT * FROM order_items;
 SELECT * FROM favorites;
 
 
+SELECT * FROM user_activity;
+
 CREATE TABLE products (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
@@ -119,4 +121,37 @@ CREATE TABLE favorites (
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (product_id) REFERENCES products(id)
 );
+
+
+CREATE TABLE user_activity (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    product_id INTEGER,
+    activity_type TEXT NOT NULL,
+    activity_timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    product_category_id INTEGER,
+    activity_duration INTEGER,  -- Duration in seconds or another unit of time
+    pricing_filter REAL,  -- Assuming this is a price range filter
+    category_filter TEXT,
+    top_category1 TEXT,
+    top_category2 TEXT,
+    top_category3 TEXT,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (product_id) REFERENCES products(id),
+    FOREIGN KEY (product_category_id) REFERENCES product_categories(id)
+);
+
+
+ALTER TABLE users
+ADD COLUMN top_category1 TEXT;
+
+ALTER TABLE users
+ADD COLUMN top_category2 TEXT;
+
+ALTER TABLE users
+ADD COLUMN top_category3 TEXT;
+
+
+ALTER TABLE user_activity
+ADD COLUMN search_filter TEXT;
 

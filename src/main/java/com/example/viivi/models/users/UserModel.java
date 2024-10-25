@@ -36,6 +36,16 @@ public class UserModel implements UserDetails {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private CartModel cart;
 
+    // Fields for top categories
+    @Column(name = "top_category1", nullable = true)
+    private Long topCategory1;
+
+    @Column(name = "top_category2", nullable = true)
+    private Long topCategory2;
+
+    @Column(name = "top_category3", nullable = true)
+    private Long topCategory3;
+
     // Constructors
     public UserModel() {}
 
@@ -88,8 +98,8 @@ public class UserModel implements UserDetails {
         this.role = role;
     }
 
-     // Getters and setters for the cart
-     public CartModel getCart() {
+    // Getters and setters for the cart
+    public CartModel getCart() {
         return cart;
     }
 
@@ -97,8 +107,30 @@ public class UserModel implements UserDetails {
         this.cart = cart;
     }
 
+    // Getters and setters for top categories
+    public Long getTopCategory1() {
+        return topCategory1;
+    }
 
-    
+    public void setTopCategory1(Long topCategory1) {
+        this.topCategory1 = topCategory1;
+    }
+
+    public Long getTopCategory2() {
+        return topCategory2;
+    }
+
+    public void setTopCategory2(Long topCategory2) {
+        this.topCategory2 = topCategory2;
+    }
+
+    public Long getTopCategory3() {
+        return topCategory3;
+    }
+
+    public void setTopCategory3(Long topCategory3) {
+        this.topCategory3 = topCategory3;
+    }
 
     // UserDetails interface methods
     @Override

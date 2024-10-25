@@ -2,10 +2,12 @@ package com.example.viivi.controller.products;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Map;
 
 
 
-import org.hibernate.mapping.Map;
+
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
@@ -49,36 +51,42 @@ public class ProductController {
     @Autowired
     private FavoriteRepository favoriteRepository;
 
-   @GetMapping
-    public String showAllProducts(
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "6") int size,  // Show 6 products per page
-            Model model) {
+    @GetMapping
+public String showAllProducts(
+        @RequestParam(value = "page", defaultValue = "0") int page,
+        @RequestParam(value = "size", defaultValue = "8") int size,  // Show 6 products per page
+        @RequestParam(value = "category", required = false) List<Long> categoryIds,
+        @RequestParam(value = "minPrice", required = false) Double minPrice,
+        @RequestParam(value = "maxPrice", required = false) Double maxPrice,
+        @RequestParam(value = "q", required = false) String searchQuery,  // Search query parameter
+        Model model) {
 
-        // Create pageable object for pagination
-        Pageable pageable = PageRequest.of(page, size);
-        
-        // Fetch paginated products
-        Page<ProductModel> productPage = productRepository.findAll(pageable);
-        List<CategoryModel> categories = categoryRepository.findAll();
+    Pageable pageable = PageRequest.of(page, size);
 
-        // Fetch the primary photo for each product
-        java.util.Map<Long, String> productImages = productPage.getContent().stream().collect(Collectors.toMap(
-                ProductModel::getId,
-                product -> {
-                    ProductPhotosModel primaryPhoto = productPhotosRepository.findByProductIdAndIsPrimaryTrue(product.getId());
-                    return (primaryPhoto != null) ? primaryPhoto.getPhotoUrl() : "/images/default-product.png";
-                }
-        ));
+    // Fetch paginated products with filters and search
+    Page<ProductModel> productPage = productRepository.findAllWithFiltersAndSearch(categoryIds, minPrice, maxPrice, searchQuery, pageable);
+    List<CategoryModel> categories = categoryRepository.findAll();
 
-        model.addAttribute("categoryList", categories);
-        model.addAttribute("productImages", productImages);
-        model.addAttribute("products", productPage.getContent());  // Pass paginated content
-        model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", productPage.getTotalPages());
+    Map<Long, String> productImages = productPage.getContent().stream().collect(Collectors.toMap(
+            ProductModel::getId,
+            product -> {
+                ProductPhotosModel primaryPhoto = productPhotosRepository.findByProductIdAndIsPrimaryTrue(product.getId());
+                return (primaryPhoto != null) ? primaryPhoto.getPhotoUrl() : "/images/default-product.png";
+            }
+    ));
 
-        return "all-products";
-    }
+    model.addAttribute("categoryList", categories);
+    model.addAttribute("productImages", productImages);
+    model.addAttribute("products", productPage.getContent());  // Pass paginated content
+    model.addAttribute("currentPage", page);
+    model.addAttribute("totalPages", productPage.getTotalPages());
+
+    // Pass the search query back to the view to retain it in the search input
+    model.addAttribute("q", searchQuery);
+
+    return "all-products";
+}
+
 
      // Show all active products
     @GetMapping("/active")

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category Preferences</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <h2 class="mt-4">Select Your Preferred Categories</h2>
+    <form th:action="@{/users/preferences}" method="post">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+        <h3>Select Your Preferred Categories</h3>
+        <div th:each="category : ${categories}">
+            <label>
+                <input type="checkbox" th:value="${category.id}" name="preferredCategories" />
+                <span th:text="${category.name}"></span>
+            </label>
+            <br/>
+        </div>
+
+        <button type="submit">Save Preferences</button>
+    </form>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

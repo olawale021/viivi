@@ -17,31 +17,36 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                                .requestMatchers("/", "/home", "/users/register", "/css/**", "/js/**", "/images/**").permitAll()
-                                .requestMatchers("/admin/**").hasRole("ADMIN")
-                                .anyRequest().authenticated()
+                        .requestMatchers("/", "/home", "/users/register", "/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()  // Allow public access to these paths
+                        .requestMatchers("/admin/**").hasRole("ADMIN")  // Restrict admin endpoints
+                        .requestMatchers("/users/preferences").authenticated()  // Ensure authenticated users can access preferences
+                        .anyRequest().authenticated()  // Authenticate other requests
                 )
                 .formLogin(form -> form
-                                .loginPage("/users/login")
-                                .usernameParameter("email")  // Custom username parameter
-                                .passwordParameter("password")  // Custom password parameter
-                                .permitAll()
-                                .defaultSuccessUrl("/", true)  // Redirect after login
-                                .successHandler((request, response, authentication) -> {
-                                    if (authentication.getAuthorities().stream()
-                                            .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-                                        response.sendRedirect("/admin/dashboard");
-                                    } else {
-                                        response.sendRedirect("/");
-                                    }
-                                })
+                        .loginPage("/users/login")
+                        .usernameParameter("email")  // Custom username parameter
+                        .passwordParameter("password")  // Custom password parameter
+                        .permitAll()
+                        .defaultSuccessUrl("/", true)  // Redirect after login
+                        .successHandler((request, response, authentication) -> {
+                            if (authentication.getAuthorities().stream()
+                                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+                                response.sendRedirect("/admin/dashboard");
+                            } else {
+                                response.sendRedirect("/");
+                            }
+                        })
                 )
                 .logout(logout -> logout
-                                .logoutUrl("/logout")
-                                .logoutSuccessUrl("/users/login?logout")
-                                .permitAll()
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/users/login?logout")  // Redirect to login page on logout
+                        .permitAll()
                 )
-                .anonymous(Customizer.withDefaults());  // Allow anonymous access
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/activity/save-activity")  // Disable CSRF for activity logging endpoint
+                )
+                .anonymous(Customizer.withDefaults());  // Allow anonymous access for unauthenticated users
+
         return http.build();
     }
 

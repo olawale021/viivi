@@ -133,33 +133,43 @@
 
         <div class="main-content">
             <div class="filters">
-                <h2 class="h5 mb-3">Filters</h2>
-                <div class="filter-section">
-                    <div class="filter-title">Categories</div>
-                    <div class="filter-options">
-                        <!-- Dynamically load categories -->
-                        <label th:each="category : ${categoryList}">
-                            <input type="checkbox" th:value="${category.id}"> 
-                            <span th:text="${category.name}"></span>
-                        </label>
+                <form th:action="@{/products}" method="get">
+                    <h2 class="h5 mb-3">Filters</h2>
+            
+                    <!-- Categories Filter -->
+                    <div class="filter-section">
+                        <div class="filter-title">Categories</div>
+                        <div class="filter-options">
+                            <!-- Dynamically load categories and keep selected categories -->
+                            <label th:each="category : ${categoryList}">
+                                <input type="checkbox" name="category" th:value="${category.id}"
+                                       th:checked="${categoryIds != null ? categoryIds.contains(category.id) : false}"> 
+                                <span th:text="${category.name}"></span>
+                            </label>
+                        </div>
                     </div>
-                </div>
-                <div class="filter-section">
-                    <div class="filter-title">Price Range</div>
-                    <div class="price-range">
-                        <input type="number" class="form-control price-input" placeholder="Min">
-                        <input type="number" class="form-control price-input" placeholder="Max">
+            
+                    <!-- Price Range Filter -->
+                    <div class="filter-section">
+                        <div class="filter-title">Price Range</div>
+                        <div class="price-range">
+                            <input type="number" class="form-control price-input" name="minPrice" placeholder="Min"
+                                   th:value="${minPrice != null ? minPrice : ''}">
+                            <input type="number" class="form-control price-input" name="maxPrice" placeholder="Max"
+                                   th:value="${maxPrice != null ? maxPrice : ''}">
+                        </div>
                     </div>
-                </div>
-                <div class="filter-section">
-                    <div class="filter-title">Stock Status</div>
-                    <div class="filter-options">
-                        <label><input type="checkbox"> In Stock</label>
-                        <label><input type="checkbox"> Out of Stock</label>
-                    </div>
-                </div>
-                <button class="btn btn-primary w-100">Apply Filters</button>
+
+
+                    <!-- Apply Filters Button -->
+                    <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+                </form>
+            
+                <!-- Clear Filters Button -->
+                <a href="/products" class="btn btn-secondary w-100 mt-2">Clear Filters</a>
             </div>
+            
+            
             <div class="product-grid">
                 <div th:each="product : ${products}" class="product-card">
                     <a th:href="@{/products/{id}(id=${product.id})}"></a>
@@ -206,5 +216,76 @@
     <div th:insert="~{footer :: footer}"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let startTime = Date.now();
+
+            function getFilters() {
+                const selectedCategories = [];
+                document.querySelectorAll('input[name="category"]:checked').forEach(el => {
+                    selectedCategories.push(el.value);
+                });
+
+                const minPrice = parseFloat(document.querySelector('input[name="minPrice"]').value) || null;
+                const maxPrice = parseFloat(document.querySelector('input[name="maxPrice"]').value) || null;
+
+                console.log('Price Filter:', { min: minPrice, max: maxPrice });
+                console.log('Selected Categories:', selectedCategories);
+
+                return {
+                    category: selectedCategories,
+                    price: {
+                        min: minPrice,
+                        max: maxPrice
+                    }
+                };
+            }
+
+            // Send user activity using navigator.sendBeacon
+            function logUserActivity() {
+                const endTime = Date.now();
+                const activityDuration = (endTime - startTime) / 1000;  // Time spent in seconds
+
+                const filterData = getFilters();
+
+                // Check if the search input exists and if a search term was entered
+                const searchFilter = document.querySelector('input[name="searchFilter"]')
+                    ? document.querySelector('input[name="searchFilter"]').value.trim()
+                    : null;
+
+                // If the searchFilter is an empty string, set it to null
+                const searchFilterValue = searchFilter && searchFilter.length > 0 ? searchFilter : null;
+
+                const activityType = "browse"
+
+                // Preparing the data to send to the backend
+                const activityData = {
+                    activityType: activityType,
+                    activityDuration: activityDuration,
+                    filterType: {
+                        min: filterData.price.min,
+                        max: filterData.price.max,
+                        category: filterData.category.length > 0 ? filterData.category[0] : null  // Only send the first category
+                    },
+                    searchFilter: searchFilterValue
+                };
+
+                // Convert the data to a JSON string
+                const activityDataString = JSON.stringify(activityData);
+
+                // Log the prepared activity data and the stringified version before sending it
+                console.log('Prepared activityData:', activityData);
+                console.log('Sending data to the backend:', activityDataString);
+
+                // Use navigator.sendBeacon to send the data to the backend
+                navigator.sendBeacon("/activity/save-activity", activityDataString);
+            }
+
+            // Log the activity when the user leaves the page
+            window.addEventListener("beforeunload", logUserActivity);
+        });
+    </script>
+
 </body>
 </html>

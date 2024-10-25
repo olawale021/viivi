@@ -6,6 +6,8 @@ import com.example.viivi.models.cart.CartRepository;
 import com.example.viivi.models.cart.CartItemRepository;
 import com.example.viivi.models.products.ProductModel;
 import com.example.viivi.models.products.ProductRepository;
+import com.example.viivi.models.userActivity.UserActivityModel;
+import com.example.viivi.models.userActivity.UserActivityRepository;
 import com.example.viivi.models.users.UserModel;
 
 import org.hibernate.Hibernate;
@@ -16,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Controller
@@ -30,6 +33,9 @@ public class CartController {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private UserActivityRepository userActivityRepository;
 
     // Show user's cart
 @GetMapping
@@ -57,38 +63,82 @@ public String viewCart(@AuthenticationPrincipal UserModel user, Model model) {
     return "cart";
 }
 
-@Transactional
-@PostMapping("/add/{productId}")
-public String addToCart(@PathVariable Long productId, @RequestParam int quantity, @AuthenticationPrincipal UserModel user, Model model) {
-    Optional<ProductModel> productOptional = productRepository.findById(productId);
+    @Transactional
+    @PostMapping("/add/{productId}")
+    public String addToCart(@PathVariable Long productId, @RequestParam int quantity, @AuthenticationPrincipal UserModel user, Model model) {
+        Optional<ProductModel> productOptional = productRepository.findById(productId);
 
-    if (productOptional.isEmpty()) {
-        model.addAttribute("error", "Product not found");
-        return "redirect:/products";
+        if (productOptional.isEmpty()) {
+            model.addAttribute("error", "Product not found");
+            return "redirect:/products";
+        }
+
+        ProductModel product = productOptional.get();
+        CartModel cart = cartRepository.findByUserWithItems(user)
+                .orElse(new CartModel(user, null, 0.0));
+
+        // Check if item is already in the cart
+        Optional<CartItemModel> existingItemOptional = cart.getItems().stream()
+                .filter(item -> item.getProduct().getId().equals(productId))
+                .findFirst();
+
+        if (existingItemOptional.isPresent()) {
+            CartItemModel existingItem = existingItemOptional.get();
+            existingItem.setQuantity(existingItem.getQuantity() + quantity);
+            cartItemRepository.save(existingItem);
+        } else {
+            CartItemModel cartItem = new CartItemModel(cart, product, quantity, product.getPrice());
+            cart.addItem(cartItem);
+            cartItemRepository.save(cartItem);
+        }
+
+        cartRepository.save(cart);
+
+        // Log activity after cart operation
+        logUserActivity(
+                user.getId(),
+                productId,
+                "add_to_cart",
+                product.getCategoryId(), // Product category ID
+                null, // Activity duration can be set as needed, e.g., from session or defaults
+                null, // Min price filter
+                null, // Max price filter
+                null, // Category filter
+                user.getTopCategory1(), // User's top category ID
+                user.getTopCategory2(), // User's top category ID
+                user.getTopCategory3(), // User's top category ID
+                null // Search filter, if applicable
+        );
+
+        return "redirect:/products/" + productId;
     }
 
-    ProductModel product = productOptional.get();
-    CartModel cart = cartRepository.findByUserWithItems(user)
-                                .orElse(new CartModel(user, null, 0.0));
+    private void logUserActivity(Long userId, Long productId, String activityType, Long productCategoryId,
+                                 Integer activityDuration, Double minPriceFilter, Double maxPriceFilter,
+                                 Long categoryFilter, Long topCategory1, Long topCategory2, Long topCategory3,
+                                 String searchFilter) {
 
-    // Check if item is already in the cart
-    Optional<CartItemModel> existingItemOptional = cart.getItems().stream()
-            .filter(item -> item.getProduct().getId().equals(productId))
-            .findFirst();
+        UserActivityModel activity = new UserActivityModel();
 
-    if (existingItemOptional.isPresent()) {
-        CartItemModel existingItem = existingItemOptional.get();
-        existingItem.setQuantity(existingItem.getQuantity() + quantity);
-        cartItemRepository.save(existingItem);
-    } else {
-        CartItemModel cartItem = new CartItemModel(cart, product, quantity, product.getPrice());
-        cart.addItem(cartItem);
-        cartItemRepository.save(cartItem);
+        // Set properties for user activity
+        activity.setUserId(userId);
+        activity.setProductId(productId);
+        activity.setActivityType(activityType);
+        activity.setProductCategoryId(productCategoryId);
+        activity.setActivityDuration(activityDuration);
+        activity.setMinPriceFilter(minPriceFilter);
+        activity.setMaxPriceFilter(maxPriceFilter);
+        activity.setCategoryFilter(categoryFilter);
+        activity.setTopCategory1(topCategory1); // Set top category ID
+        activity.setTopCategory2(topCategory2); // Set top category ID
+        activity.setTopCategory3(topCategory3); // Set top category ID
+        activity.setSearchFilter(searchFilter);
+        activity.setActivityTimestamp(LocalDateTime.now()); // Set current timestamp
+
+        // Save the activity to the database
+        userActivityRepository.save(activity);
     }
 
-    cartRepository.save(cart);
-    return "redirect:/cart";
-}
 
 
     // Remove item from cart
@@ -99,18 +149,35 @@ public String addToCart(@PathVariable Long productId, @RequestParam int quantity
 
         if (cartOptional.isPresent()) {
             CartModel cart = cartOptional.get();
-    
+
             Optional<CartItemModel> cartItemOptional = cartItemRepository.findById(cartItemId);
-    
+
             if (cartItemOptional.isPresent()) {
                 CartItemModel cartItem = cartItemOptional.get();
                 cart.removeItem(cartItem);  // This should remove the item from the list
                 cartItemRepository.delete(cartItem);  // Then, delete the cart item from the database
+
+                // Log activity after removing the item from the cart
+                logUserActivity(
+                        user.getId(),
+                        cartItem.getProduct().getId(),  // Get product ID from the cart item
+                        "remove_from_cart",  // Interaction type
+                        cartItem.getProduct().getCategoryId(), // Assuming you have a method to get the product category ID
+                        null,  // Activity duration can be set as needed
+                        null,  // Min price filter
+                        null,  // Max price filter
+                        null,  // Category filter
+                        user.getTopCategory1(), // User's top category ID
+                        user.getTopCategory2(),
+                        user.getTopCategory3(),
+                        null // Search filter, if applicable
+                );
             }
         }
-    
+
         return "redirect:/cart";
     }
+
 
     // Update item quantity in cart
     @PostMapping("/update/{cartItemId}")

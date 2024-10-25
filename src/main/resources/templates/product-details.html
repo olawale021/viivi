@@ -124,74 +124,125 @@
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <div th:insert="~{header :: header}"></div>
+<!-- Header -->
+<div th:insert="~{header :: header}"></div>
 
-    <!-- Breadcrumb navigation for better UX -->
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb container my-4">
-            <li class="breadcrumb-item"><a th:href="@{/}">Home</a></li>
-            <li class="breadcrumb-item"><a th:href="@{/products}">Products</a></li>
-            <li class="breadcrumb-item active" aria-current="page" th:text="${product.name}">Product Name</li>
-        </ol>
-    </nav>
+<!-- Breadcrumb navigation for better UX -->
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb container my-4">
+        <li class="breadcrumb-item"><a th:href="@{/}">Home</a></li>
+        <li class="breadcrumb-item"><a th:href="@{/products}">Products</a></li>
+        <li class="breadcrumb-item active" aria-current="page" th:text="${product.name}">Product Name</li>
+    </ol>
+</nav>
 
-    <!-- Product Details -->
-    <div class="container">
-        <div class="product-details-container">
-            <!-- Product Image -->
-            <div class="product-image-container">
-                <img th:src="${productImage}" th:alt="${product.name}" class="product-image">
+<!-- Product Details -->
+<div class="container">
+    <div class="product-details-container">
+        <!-- Product Image -->
+        <div class="product-image-container">
+            <img th:src="${productImage}" th:alt="${product.name}" class="product-image">
+        </div>
+
+        <!-- Product Info -->
+        <div class="product-info">
+            <h1 class="product-title" th:text="${product.name}">Product Name</h1>
+            <div class="product-price" th:text="${#numbers.formatCurrency(product.price)}">£99.99</div>
+            <div class="product-stock" th:if="${product.stockQuantity > 0}">
+                <span th:text="${product.stockQuantity + ' in stock'}">In stock</span>
             </div>
+            <div class="product-stock text-danger" th:if="${product.stockQuantity == 0}">
+                <span>Out of stock</span>
+            </div>
+            <p class="product-description" th:text="${product.description}">This is the product description...</p>
 
-            <!-- Product Info -->
-            <div class="product-info">
-                <h1 class="product-title" th:text="${product.name}">Product Name</h1>
-                <div class="product-price" th:text="${#numbers.formatCurrency(product.price)}">£99.99</div>
-                <div class="product-stock" th:if="${product.stockQuantity > 0}">
-                    <span th:text="${product.stockQuantity + ' in stock'}">In stock</span>
+            <!-- Add to Cart Form -->
+            <form th:action="@{/cart/add/{id}(id=${product.id})}" method="post">
+                <div class="form-group mb-3">
+                    <label for="quantity">Quantity</label>
+                    <input type="number" id="quantity" name="quantity" class="form-control" min="1" max="${product.stockQuantity}" value="1" required>
                 </div>
-                <div class="product-stock text-danger" th:if="${product.stockQuantity == 0}">
-                    <span>Out of stock</span>
-                </div>
-                <p class="product-description" th:text="${product.description}">This is the product description...</p>
+                <button type="submit" class="add-to-cart-btn">Add to Cart</button>
+            </form>
 
-                <!-- Add to Cart Form -->
-                <form th:action="@{/cart/add/{id}(id=${product.id})}" method="post">
-                    <div class="form-group mb-3">
-                        <label for="quantity">Quantity</label>
-                        <input type="number" id="quantity" name="quantity" class="form-control" min="1" max="${product.stockQuantity}" value="1" required>
-                    </div>
-                    <button type="submit" class="add-to-cart-btn">Add to Cart</button>
-                </form>
+            <form th:action="@{/favorites/toggle}" method="post">
+                <input type="hidden" name="userId" th:value="${user != null ? user.id : ''}">
+                <input type="hidden" name="productId" th:value="${product.id}">
 
-                <form th:action="@{/favorites/toggle}" method="post">
-                    <input type="hidden" name="userId" th:value="${user != null ? user.id : ''}">
-                    <input type="hidden" name="productId" th:value="${product.id}">
-                    
-                    <!-- If already a favorite, include the favorite ID for removal -->
-                    <input type="hidden" name="favoriteId" th:if="${favoriteAlreadyAdded}" th:value="${favorite != null ? favorite.id : ''}">
-                    
-                    <button type="submit" class="btn"
+                <!-- If already a favorite, include the favorite ID for removal -->
+                <input type="hidden" name="favoriteId" th:if="${favoriteAlreadyAdded}" th:value="${favorite != null ? favorite.id : ''}">
+
+                <button type="submit" class="btn"
                         th:classappend="${favoriteAlreadyAdded ? 'btn-outline-danger' : 'btn-outline-primary'}">
-                        <i class="bi" th:classappend="${favoriteAlreadyAdded ? 'bi-heart-fill' : 'bi-heart'}"></i> 
-                        <span th:text="${favoriteAlreadyAdded ? 'Remove from Favorites' : 'Add to Favorites'}"></span>
-                    </button>
-                </form>
-                
-                
+                    <i class="bi" th:classappend="${favoriteAlreadyAdded ? 'bi-heart-fill' : 'bi-heart'}"></i>
+                    <span th:text="${favoriteAlreadyAdded ? 'Remove from Favorites' : 'Add to Favorites'}"></span>
+                </button>
+            </form>
 
-                <!-- Show a message if the user is not logged in -->
-                <div th:if="${user == null}">
-                    <p>Please <a th:href="@{/login}">log in</a> to add this product to your favorites.</p>
-                </div>
+            <!-- Show a message if the user is not logged in -->
+            <div th:if="${user == null}">
+                <p>Please <a th:href="@{/login}">log in</a> to add this product to your favorites.</p>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Footer -->
-    <div th:insert="~{footer :: footer}"></div>
+<!-- Hidden input for product category ID -->
+<input type="hidden" id="productCategoryId" th:value="${product.categoryId}"/>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<!-- Footer -->
+<div th:insert="~{footer :: footer}"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const startTime = Date.now(); // Start the timer
+        const productId = document.querySelector('input[name="productId"]').value; // Get product ID
+        const productCategoryId = document.getElementById('productCategoryId').value; // Get product category ID
+        let activityTimer; // Initialize a timer for debouncing
+
+        // Function to log user activity
+        function logUserActivity() {
+            clearTimeout(activityTimer); // Clear the previous timer
+
+            // Set a new timer to log activity after 5 seconds of inactivity
+            activityTimer = setTimeout(() => {
+                const endTime = Date.now();
+                const activityDuration = (endTime - startTime) / 1000; // Convert to seconds
+                const activityType = "view"
+
+                const activityData = {
+                    activityType: activityType,
+                    activityDuration: activityDuration,
+                    filterType: {
+                        min: null, // Set your filter logic if needed
+                        max: null,
+                        category: null
+                    },
+                    searchFilter: null, // Not applicable here, but can be tracked if needed
+                    productId: productId, // Set actual product ID
+                    productCategoryId: productCategoryId // Set actual product category ID
+                };
+
+                // Convert the data to a JSON string
+                const activityDataString = JSON.stringify(activityData);
+
+                // Use navigator.sendBeacon to send the data to the server
+                navigator.sendBeacon('/activity/save-activity', activityDataString);
+            }, 1000); // Log after 1 seconds of inactivity
+        }
+
+        // Log the user activity when leaving the page
+        window.addEventListener("beforeunload", logUserActivity);
+
+        // Optionally, you can call logUserActivity on specific events (like scrolling or clicking) to keep the timer alive
+        window.addEventListener('mousemove', logUserActivity);
+        window.addEventListener('scroll', logUserActivity);
+        window.addEventListener('click', logUserActivity);
+    });
+</script>
+
+
+
 </body>
 </html>

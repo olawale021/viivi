@@ -3,6 +3,8 @@ package com.example.viivi.controller.favorite;
 
 import com.example.viivi.models.favorite.FavoriteModel;
 import com.example.viivi.models.products.ProductModel;
+import com.example.viivi.models.userActivity.UserActivityModel;
+import com.example.viivi.models.userActivity.UserActivityRepository;
 import com.example.viivi.models.users.UserModel;
 import com.example.viivi.models.favorite.FavoriteRepository;
 import com.example.viivi.models.products.ProductRepository;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,6 +31,9 @@ public class FavoriteController {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private UserActivityRepository userActivityRepository;
 
     // Add product to favorites
     @PostMapping("/add")
@@ -85,6 +91,21 @@ public class FavoriteController {
             if (favoriteOptional.isPresent()) {
                 favoriteRepository.delete(favoriteOptional.get());
                 model.addAttribute("message", "Product removed from favorites successfully.");
+                // Log remove from favorites activity
+                logUserActivity(
+                        user.getId(),
+                        productId,
+                        "remove_from_favorite",  // Activity type
+                        product.getCategoryId(), // Assuming you have a method to get the product category ID
+                        null,  // Activity duration can be set as needed
+                        null,  // Min price filter
+                        null,  // Max price filter
+                        null,  // Category filter
+                        user.getTopCategory1(), // User's top category ID
+                        user.getTopCategory2(),
+                        user.getTopCategory3(),
+                        null // Search filter, if applicable
+                );
             } else {
                 model.addAttribute("message", "Product not found in favorites.");
             }
@@ -97,33 +118,92 @@ public class FavoriteController {
     }
 
     @PostMapping("/toggle")
-public String toggleFavorite(@RequestParam Long userId, @RequestParam Long productId, @RequestParam(required = false) Long favoriteId, Model model) {
-    Optional<UserModel> userOptional = userRepository.findById(userId);
-    Optional<ProductModel> productOptional = productRepository.findById(productId);
+    public String toggleFavorite(@RequestParam Long userId, @RequestParam Long productId, @RequestParam(required = false) Long favoriteId, Model model) {
+        Optional<UserModel> userOptional = userRepository.findById(userId);
+        Optional<ProductModel> productOptional = productRepository.findById(productId);
 
-    if (userOptional.isPresent() && productOptional.isPresent()) {
-        UserModel user = userOptional.get();
-        ProductModel product = productOptional.get();
+        if (userOptional.isPresent() && productOptional.isPresent()) {
+            UserModel user = userOptional.get();
+            ProductModel product = productOptional.get();
 
-        // Check if the product is already in the user's favorites
-        Optional<FavoriteModel> existingFavorite = favoriteRepository.findByUserAndProduct(user, product);
+            // Check if the product is already in the user's favorites
+            Optional<FavoriteModel> existingFavorite = favoriteRepository.findByUserAndProduct(user, product);
 
-        if (existingFavorite.isPresent()) {
-            // If it's a favorite, remove it using the favorite ID
-            favoriteRepository.deleteById(existingFavorite.get().getId());
-            model.addAttribute("message", "Product removed from favorites.");
-        } else {
-            // Otherwise, add it as a favorite
-            FavoriteModel favorite = new FavoriteModel(user, product);
-            favoriteRepository.save(favorite);
-            model.addAttribute("message", "Product added to favorites.");
+            if (existingFavorite.isPresent()) {
+                // If it's a favorite, remove it using the favorite ID
+                favoriteRepository.deleteById(existingFavorite.get().getId());
+                model.addAttribute("message", "Product removed from favorites.");
+
+                // Log remove from favorites activity
+                logUserActivity(
+                        user.getId(),
+                        productId,
+                        "remove_from_favorite",  // Activity type
+                        product.getCategoryId(), // Assuming you have a method to get the product category ID
+                        null,  // Activity duration can be set as needed
+                        null,  // Min price filter
+                        null,  // Max price filter
+                        null,  // Category filter
+                        user.getTopCategory1(), // User's top category ID
+                        user.getTopCategory2(),
+                        user.getTopCategory3(),
+                        null // Search filter, if applicable
+                );
+            } else {
+                // Otherwise, add it as a favorite
+                FavoriteModel favorite = new FavoriteModel(user, product);
+                favoriteRepository.save(favorite);
+                model.addAttribute("message", "Product added to favorites.");
+
+                // Log add to favorites activity
+                logUserActivity(
+                        user.getId(),
+                        productId,
+                        "add_to_favorite",  // Activity type
+                        product.getCategoryId(), // Assuming you have a method to get the product category ID
+                        null,  // Activity duration can be set as needed
+                        null,  // Min price filter
+                        null,  // Max price filter
+                        null,  // Category filter
+                        user.getTopCategory1(), // User's top category ID
+                        user.getTopCategory2(),
+                        user.getTopCategory3(),
+                        null // Search filter, if applicable
+                );
+            }
+
+            return "redirect:/products/" + productId;  // Redirect back to product page
         }
 
-        return "redirect:/products/" + productId;  // Redirect back to product page
+        model.addAttribute("message", "User or product not found.");
+        return "redirect:/products/" + productId;  // Redirect back to product page if error
     }
 
-    model.addAttribute("message", "User or product not found.");
-    return "redirect:/products/" + productId;  // Redirect back to product page if error
-}
+
+    private void logUserActivity(Long userId, Long productId, String activityType, Long productCategoryId,
+                                 Integer activityDuration, Double minPriceFilter, Double maxPriceFilter,
+                                 Long categoryFilter, Long topCategory1, Long topCategory2, Long topCategory3,
+                                 String searchFilter) {
+
+        UserActivityModel activity = new UserActivityModel();
+
+        // Set properties for user activity
+        activity.setUserId(userId);
+        activity.setProductId(productId);
+        activity.setActivityType(activityType);
+        activity.setProductCategoryId(productCategoryId);
+        activity.setActivityDuration(activityDuration);
+        activity.setMinPriceFilter(minPriceFilter);
+        activity.setMaxPriceFilter(maxPriceFilter);
+        activity.setCategoryFilter(categoryFilter);
+        activity.setTopCategory1(topCategory1); // Set top category ID
+        activity.setTopCategory2(topCategory2); // Set top category ID
+        activity.setTopCategory3(topCategory3); // Set top category ID
+        activity.setSearchFilter(searchFilter);
+        activity.setActivityTimestamp(LocalDateTime.now()); // Set current timestamp
+
+        // Save the activity to the database
+        userActivityRepository.save(activity);
+    }
 
 }
